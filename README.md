@@ -1,5 +1,7 @@
 # TA Assess
 
+[![TA Assess CI](https://github.com/M-TamDre07/TA-Assess/actions/workflows/ci.yml/badge.svg)](https://github.com/M-TamDre07/TA-Assess/actions/workflows/ci.yml)
+
 **TA Assess** adalah platform web untuk **self-assessment**, eksplorasi diri, dan penyajian hasil asesmen terstruktur yang dikembangkan oleh **Tama Andrea Studio**.
 
 > **Status proyek: Development / Demo**
@@ -51,6 +53,9 @@ Informasi metodologi dan batasan penggunaan tersedia di:
 
 ```text
 TA-Assess/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── index.html
 ├── test.html
 ├── result.html
@@ -66,6 +71,7 @@ TA-Assess/
 │   ├── script.js
 │   └── test-engine.js
 ├── tests/
+│   ├── check-repository.js
 │   └── run-tests.js
 ├── google-apps-script/
 │   └── code.gs
@@ -81,7 +87,23 @@ TA-Assess/
 └── README.md
 ```
 
-`test.html` sekarang tersedia di branch `main`. Repository berisi source backend `code.gs` sebagai referensi/version control; kode yang dieksekusi tetap berada pada project Google Apps Script yang terhubung dengan Spreadsheet.
+`google-apps-script/code.gs` disimpan di repository sebagai **source/version-control**. Kode yang dieksekusi tetap berada pada project Google Apps Script yang terhubung dengan Spreadsheet.
+
+## Quality Checks
+
+Repository sekarang memiliki pemeriksaan otomatis untuk mengurangi risiko link/path/config yang rusak:
+
+```bash
+node tests/run-tests.js
+node tests/check-repository.js
+node --check google-apps-script/code.gs
+```
+
+GitHub Actions menjalankan pemeriksaan tersebut pada setiap push ke `main` dan setiap pull request ke `main`, termasuk syntax check untuk JavaScript frontend dan source Apps Script.
+
+`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js` pada halaman aplikasi, pola secret umum di runtime config, serta wiring halaman verifikasi ke backend.
+
+> **Catatan:** CI membuktikan konsistensi source code dan struktur repository. CI tidak dapat membuktikan deployment Google Apps Script, Google Sheets, Vercel, PDF, atau browser secara nyata tanpa pengujian integrasi/e2e terpisah.
 
 ## Menjalankan Secara Lokal
 
@@ -91,6 +113,12 @@ Untuk pengujian logika:
 
 ```bash
 node tests/run-tests.js
+```
+
+Untuk pemeriksaan struktur dan tautan lokal:
+
+```bash
+node tests/check-repository.js
 ```
 
 Untuk penggunaan melalui browser, jalankan proyek menggunakan static server sederhana atau hosting statis seperti GitHub Pages, Vercel, atau Netlify.
