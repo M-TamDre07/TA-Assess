@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Dokumentasi TA Assess tentang privasi, metodologi asesmen, keamanan akun, setup backend, dan kontribusi proyek.">
+  <meta name="robots" content="index,follow">
+  <title>Dokumentasi | TA Assess</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .docs-page{min-height:100vh;padding:105px 20px 60px;background:#f5f7fa}.docs-shell{width:min(1120px,100%);margin:auto}.docs-hero{position:relative;overflow:hidden;border-radius:22px;padding:46px 34px;margin-bottom:22px;background:linear-gradient(135deg,rgba(33,74,132,.96),rgba(41,126,161,.88)),url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80') center/cover;color:#fff;box-shadow:0 20px 55px rgba(20,40,60,.16)}.docs-hero h1{margin:0 0 10px;font-size:clamp(2rem,5vw,3.1rem)}.docs-hero p{max-width:760px;line-height:1.7;margin:0}.docs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.docs-card{background:#fff;border:1px solid #e1e7ed;border-radius:16px;padding:22px;box-shadow:0 10px 28px rgba(20,30,40,.05)}.docs-card h2{margin-top:0;color:#2f4358}.docs-card p{color:#667684;line-height:1.65}.docs-tags{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.docs-tag{padding:5px 9px;border-radius:999px;background:#eef3f7;color:#425668;font-size:.78rem}.docs-button{display:inline-block;padding:10px 14px;border-radius:9px;background:#315efb;color:#fff;text-decoration:none;font-weight:700;margin-right:7px}.docs-button.secondary{background:#eef2f5;color:#304252}.docs-note{margin-top:18px;padding:14px 16px;background:#fff8e6;border-radius:10px;color:#725c15;line-height:1.6}.docs-footer{margin-top:24px;text-align:center;color:#667684}.docs-footer a{color:#315efb}@media(max-width:760px){.docs-grid{grid-template-columns:1fr}.docs-hero{padding:34px 22px}}
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Navigasi utama"><div class="nav-container"><div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Dokumentasi</span></div><div class="nav-links"><a href="index.html" class="nav-link">Beranda</a><a href="account.html" class="nav-link">Akun</a><a href="admin" class="nav-link">Admin</a></div></div></nav>
+  <main class="docs-page"><div class="docs-shell">
+    <section class="docs-hero"><h1>Dokumentasi TA Assess</h1><p>Dokumentasi publik untuk memahami cara TA Assess mengelola privasi, metodologi asesmen, akun, keamanan, dan deployment backend. Ringkasan di bawah dibuat sebagai pintu masuk yang lebih mudah dibaca daripada file source mentah.</p></section>
+    <section class="docs-grid">
+      <article class="docs-card" id="privacy"><h2>Privasi</h2><p>Menjelaskan data yang dikumpulkan, penggunaan kamera, penyimpanan browser dan Google Sheets, metadata keamanan, serta batasan pemrosesan.</p><div class="docs-tags"><span class="docs-tag">Data minimal</span><span class="docs-tag">Kamera lokal</span><span class="docs-tag">Tidak ada frame upload</span></div><a class="docs-button" href="docs/PRIVACY.md">Baca sumber</a></article>
+      <article class="docs-card" id="methodology"><h2>Metodologi Asesmen</h2><p>Menjelaskan status DEMO dan PILOT, validation status, prinsip interpretasi, skor relatif, MBTI informational, Insight Assistant, report ID, dan versioning.</p><div class="docs-tags"><span class="docs-tag">Self assessment</span><span class="docs-tag">Not validated</span><span class="docs-tag">Versioning</span></div><a class="docs-button" href="docs/ASSESSMENT-METHODOLOGY.md">Baca sumber</a></article>
+      <article class="docs-card" id="account-security"><h2>Keamanan Akun</h2><p>Dokumentasi arsitektur akun berbasis Google Apps Script dan Google Sheets, hashing password, session, lockout, audit event, dan batasan penggunaan Sheets.</p><div class="docs-tags"><span class="docs-tag">Session</span><span class="docs-tag">Lockout</span><span class="docs-tag">Audit</span></div><a class="docs-button" href="docs/ACCOUNT-SECURITY.md">Baca sumber</a></article>
+      <article class="docs-card" id="setup"><h2>Setup Backend</h2><p>Panduan deployment Spreadsheet, Apps Script, Script Properties, Web App, verification, Telegram opsional, dan checklist pengujian deployment.</p><div class="docs-tags"><span class="docs-tag">Apps Script</span><span class="docs-tag">Google Sheets</span><span class="docs-tag">Vercel</span></div><a class="docs-button" href="docs/SETUP.md">Baca sumber</a></article>
+    </section>
+    <section class="docs-card" style="margin-top:16px"><h2>Untuk kontributor</h2><p>TA Assess menerima kontribusi melalui GitHub. Gunakan issue untuk bug atau usulan, baca panduan kontribusi, lalu kirim pull request. Secret, token, password, dan data pengguna tidak boleh dimasukkan ke repository.</p><a class="docs-button" href="docs/CONTRIBUTING.md">Panduan kontribusi</a><a class="docs-button secondary" href="docs/SECURITY.md">Kebijakan keamanan</a><a class="docs-button secondary" href="https://github.com/M-TamDre07/TA-Assess" target="_blank" rel="noopener noreferrer">Repository GitHub</a><div class="docs-note"><strong>Catatan:</strong> TA Assess tetap merupakan platform self assessment. Dokumentasi ini tidak mengubah status instrumen menjadi diagnosis, sertifikasi, atau instrumen psikologi tervalidasi.</div></section>
+    <p class="docs-footer"><a href="index.html">Kembali ke TA Assess</a></p>
+  </div></main>
+</body>
+</html>
