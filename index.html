@@ -52,11 +52,11 @@
                     <p>Informasi instrumen, scoring, status pengembangan, dan batasan penggunaan disediakan agar hasil tidak disalahartikan.</p>
                 </div>
                 <div class="about-item">
-                    <h3>Privasi & Keamanan</h3>
+                    <h3>Privasi &amp; Keamanan</h3>
                     <p>TA Assess tidak menaruh secret seperti API key atau token pada frontend. Fitur penyimpanan eksternal menggunakan backend yang dikonfigurasi secara terpisah.</p>
                 </div>
                 <div class="about-item">
-                    <h3>ID & Verifikasi</h3>
+                    <h3>ID &amp; Verifikasi</h3>
                     <p>Laporan memiliki ID unik dan dapat diverifikasi melalui backend Google Apps Script ketika integrasi telah aktif.</p>
                 </div>
             </div>
@@ -81,15 +81,11 @@
             <div class="support-links">
                 <div class="support-item">
                     <h4>💝 Saweria</h4>
-                    <a href="https://saweria.co/tamaandrea" target="_blank" rel="noopener noreferrer" class="support-button" id="saweriaLink">
-                        Donasi via Saweria
-                    </a>
+                    <a href="https://saweria.co/tamaandrea" target="_blank" rel="noopener noreferrer" class="support-button" id="saweriaLink">Donasi via Saweria</a>
                 </div>
                 <div class="support-item">
-                    <h4>💬 Feedback & Saran</h4>
-                    <a href="https://formspree.io/f/xaeydera" target="_blank" rel="noopener noreferrer" class="support-button" id="formsperra">
-                        Berikan Feedback
-                    </a>
+                    <h4>💬 Feedback &amp; Saran</h4>
+                    <a href="https://formspree.io/f/xaeydera" target="_blank" rel="noopener noreferrer" class="support-button" id="formsperra">Berikan Feedback</a>
                 </div>
                 <div class="support-item">
                     <h4>📱 Kontak</h4>
@@ -114,7 +110,8 @@
                     <h4>Dokumentasi</h4>
                     <a href="docs/PRIVACY.md">Privasi</a><br>
                     <a href="docs/ASSESSMENT-METHODOLOGY.md">Metodologi Asesmen</a><br>
-                    <a href="docs/SETUP.md">Setup Backend</a>
+                    <a href="docs/SETUP.md">Setup Backend</a><br>
+                    <a href="verify.html">Verifikasi Laporan</a>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -123,7 +120,7 @@
         </div>
     </footer>
 
-    <div id="assessmentModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalBody">
+    <div id="assessmentModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-content">
             <span class="close" role="button" tabindex="0" aria-label="Tutup">&times;</span>
             <div id="modalBody"></div>
@@ -132,5 +129,6 @@
 
     <script src="js/assessments-data.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/runtime-config.js"></script>
 </body>
 </html>
