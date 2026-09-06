@@ -1,0 +1,14 @@
+{
+  "name": "TA Assess",
+  "short_name": "TA Assess",
+  "description": "Platform self assessment untuk eksplorasi diri dan penyajian hasil secara terstruktur.",
+  "lang": "id-ID",
+  "dir": "ltr",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#315efb",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
