@@ -29,6 +29,7 @@ const runtimeConfig=read('js/runtime-config.js');
 const forbiddenSecrets=[/sk-[A-Za-z0-9_-]{20,}/,/gh[pousr]_[A-Za-z0-9_]{20,}/,/AIza[0-9A-Za-z_-]{20,}/,/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i,/xox[baprs]-[A-Za-z0-9-]{10,}/];
 forbiddenSecrets.forEach(pattern=>assert(!pattern.test(runtimeConfig),`runtime-config.js terdeteksi pola secret: ${pattern}`));
 assert(runtimeConfig.includes('CONFIG.GOOGLE_SHEETS_API'),'runtime-config.js tidak mendefinisikan CONFIG.GOOGLE_SHEETS_API');
+assert(runtimeConfig.includes('AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx'),'runtime-config.js belum memakai endpoint Apps Script terbaru');
 assert(runtimeConfig.includes('CONFIG.FORMSPREE_LINK'),'runtime-config.js tidak mendefinisikan CONFIG.FORMSPREE_LINK');
 assert(runtimeConfig.includes('CONFIG.SAWERIA_LINK'),'runtime-config.js tidak mendefinisikan CONFIG.SAWERIA_LINK');
 assert(runtimeConfig.includes('CONFIG.ASSESSMENT_SECURITY_API'),'runtime-config.js tidak mendefinisikan security endpoint');
@@ -95,10 +96,13 @@ assert(docs.includes('id="methodology"'),'docs.html belum memiliki section metod
 assert(docs.includes('id="security"'),'docs.html belum memiliki section keamanan akun');
 assert(docs.includes('id="backend"'),'docs.html belum memiliki section setup backend');
 assert(docs.includes('id="algorithm"'),'docs.html belum memiliki section algoritma');
+assert(docs.includes('id="health"'),'docs.html belum memiliki section pemeriksaan sistem');
 assert(docs.includes('assets/docs-hero.svg'),'docs.html belum memakai aset hero lokal');
+assert(docs.includes('<img src="assets/docs-hero.svg"'),'docs.html belum menampilkan aset hero sebagai gambar yang terlihat');
+assert(docs.includes('docs-button'),'docs.html belum memiliki komponen tombol UI');
 assert(!docs.includes('docs/PRIVACY.md">Baca sumber'),'docs.html masih melempar pengunjung ke Markdown mentah');
 
 const codeowners=read('CODEOWNERS');
 assert(codeowners.includes('@M-TamDre07'),'CODEOWNERS belum menunjuk maintainer');
 
-if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, docs UI, backend health, maintenance recovery, admin redaction, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
+if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, docs UI, visible asset, latest backend endpoint, health, maintenance recovery, admin redaction, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
