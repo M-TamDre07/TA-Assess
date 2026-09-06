@@ -9,10 +9,10 @@ function exists(relativePath){return fs.existsSync(path.join(ROOT,relativePath))
 function read(relativePath){return fs.readFileSync(path.join(ROOT,relativePath),'utf8');}
 function assert(condition,message){if(!condition)errors.push(message);}
 
-const requiredFiles=['index.html','test.html','result.html','verify.html','css/styles.css','js/assessments-data.js','js/script.js','js/test-engine.js','js/result-engine.js','js/insight-engine.js','js/recommendation-engine.js','js/runtime-config.js','js/assessment-calibration.js','js/security-hardening.js','js/client-diagnostics.js','api/assessment-session.js','api/assessment-submit.js','api/assessment-event.js','tests/run-tests.js','google-apps-script/code.gs','README.md','docs/SETUP.md','docs/PRIVACY.md','docs/ASSESSMENT-METHODOLOGY.md','docs/SECURITY-DEPLOYMENT.md'];
+const requiredFiles=['index.html','docs.html','404.html','favicon.svg','site.webmanifest','robots.txt','test.html','result.html','verify.html','admin.html','admin-dashboard.html','css/styles.css','js/assessments-data.js','js/script.js','js/test-engine.js','js/result-engine.js','js/insight-engine.js','js/recommendation-engine.js','js/runtime-config.js','js/assessment-calibration.js','js/security-hardening.js','js/client-diagnostics.js','js/admin-dashboard.js','api/assessment-session.js','api/assessment-submit.js','api/assessment-event.js','tests/run-tests.js','google-apps-script/code.gs','google-apps-script/account.gs','README.md','docs/SETUP.md','docs/PRIVACY.md','docs/ASSESSMENT-METHODOLOGY.md','docs/ACCOUNT-SECURITY.md','docs/SECURITY-DEPLOYMENT.md','docs/CONTRIBUTING.md','docs/SECURITY.md'];
 requiredFiles.forEach(file=>assert(exists(file),`File wajib tidak ditemukan: ${file}`));
 
-const htmlFiles=['index.html','test.html','result.html','verify.html'];
+const htmlFiles=['index.html','docs.html','test.html','result.html','verify.html','admin.html','admin-dashboard.html'];
 const referencePattern=/(?:href|src)\s*=\s*["']([^"'#?]+)(?:[#?][^"']*)?["']/gi;
 for(const htmlFile of htmlFiles){
   if(!exists(htmlFile))continue;
@@ -23,7 +23,7 @@ for(const htmlFile of htmlFiles){
     assert(exists(target),`${htmlFile}: local reference tidak ditemukan -> ${target}`);
   }
 }
-for(const htmlFile of ['index.html','test.html','result.html','verify.html']){if(!exists(htmlFile))continue;assert(read(htmlFile).includes('js/runtime-config.js'),`${htmlFile}: runtime-config.js belum dimuat`);}
+for(const htmlFile of ['index.html','test.html','result.html','verify.html','admin-dashboard.html']){if(!exists(htmlFile))continue;assert(read(htmlFile).includes('js/runtime-config.js'),`${htmlFile}: runtime-config.js belum dimuat`);}
 
 const runtimeConfig=read('js/runtime-config.js');
 const forbiddenSecrets=[/sk-[A-Za-z0-9_-]{20,}/,/gh[pousr]_[A-Za-z0-9_]{20,}/,/AIza[0-9A-Za-z_-]{20,}/,/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i,/xox[baprs]-[A-Za-z0-9-]{10,}/];
@@ -49,4 +49,26 @@ const backend=read('google-apps-script/code.gs');
 assert(backend.includes('TA_SERVER_SHARED_SECRET'),'backend belum memiliki shared secret submission');
 assert(backend.includes('requireServerProof_'),'backend belum menegakkan server proof');
 
-if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
+const account=read('google-apps-script/account.gs');
+assert(account.includes('adminDeleteReport_'),'account backend belum memiliki admin delete report');
+assert(account.includes('adminDeleteUser_'),'account backend belum memiliki admin delete user');
+assert(account.includes('adminSetUserStatus_'),'account backend belum memiliki admin status control');
+assert(account.includes('adminRevokeSession_'),'account backend belum memiliki session revoke control');
+
+const vercel=read('vercel.json');
+assert(vercel.includes('"/admin"'),'vercel.json belum menyediakan route /admin');
+assert(vercel.includes('"/admin/"'),'vercel.json belum menyediakan route /admin/');
+
+const index=read('index.html');
+assert(index.includes('site.webmanifest'),'index.html belum memuat web manifest');
+assert(index.includes('favicon.svg'),'index.html belum memuat favicon');
+assert(index.includes('docs.html#privacy'),'footer belum mengarah ke UI dokumentasi privasi');
+assert(index.includes('application/ld+json'),'index.html belum memiliki structured data');
+
+const docs=read('docs.html');
+assert(docs.includes('id="privacy"'),'docs.html belum memiliki section privasi');
+assert(docs.includes('id="methodology"'),'docs.html belum memiliki section metodologi');
+assert(docs.includes('id="account-security"'),'docs.html belum memiliki section keamanan akun');
+assert(docs.includes('id="setup"'),'docs.html belum memiliki section setup backend');
+
+if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, admin wiring, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
