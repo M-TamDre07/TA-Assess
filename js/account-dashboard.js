@@ -1,4 +1,4 @@
-/* TA ASSESS — Account dashboard */
+/* TA ASSESS | Account dashboard */
 (function () {
   'use strict';
   const API = (typeof CONFIG !== 'undefined' && CONFIG.ACCOUNT_API) || '';
@@ -18,11 +18,26 @@
   function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
   function setMessage(text, type='') { const el=$('dashboardMessage'); if(el){el.textContent=text||'';el.className='dashboard-message '+type;} }
 
+  function updateCompleteProfile(reports) {
+    const ids = [...new Set((reports || []).map(r => String(r.assessmentId || '')))];
+    if (window.TA_ACCOUNT_PROFILE && typeof window.TA_ACCOUNT_PROFILE.showIfComplete === 'function') {
+      window.TA_ACCOUNT_PROFILE.showIfComplete(ids);
+    }
+    const hint = $('profileHint');
+    if (hint) {
+      const missing = ['PERSONALITY-01','CAREER-01','LEARNING-01'].filter(id => !ids.includes(id));
+      hint.textContent = missing.length
+        ? `Profil Lengkap akan terbuka setelah ${missing.length} jenis asesmen lagi selesai.`
+        : 'Tiga jenis asesmen sudah lengkap. Profil Lengkap Anda tersedia.';
+    }
+  }
+
   async function loadReports() {
     if (!$('reportHistory')) return;
     try {
       const data = await request({action:'myReports', token:token()});
       const reports = data.reports || [];
+      updateCompleteProfile(reports);
       $('reportCount').textContent = `${reports.length} laporan tersimpan`;
       if (!reports.length) {
         $('reportHistory').innerHTML = '<div class="empty-history">Belum ada hasil yang tersimpan. Setelah menyelesaikan asesmen dengan akun, hasil akan muncul di sini.</div>';
@@ -47,7 +62,6 @@
     if (!next) return;
     const loginForm = $('loginForm');
     if (!loginForm) return;
-    const originalSubmit = loginForm.onsubmit;
     loginForm.addEventListener('submit', () => {
       window.setTimeout(() => {
         const user = (() => { try{return JSON.parse(sessionStorage.getItem(USER_KEY)||'null');}catch(_){return null;} })();
