@@ -7,145 +7,35 @@
     <title>Asesmen — TA Assess</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        .test-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .test-header {
-            background-color: var(--primary-color);
-            color: var(--bg-white);
-            padding: 1.5rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background-color: var(--border-color);
-            border-radius: 3px;
-            margin: 1rem 0;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background-color: var(--secondary-color);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        .question-number {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        .question-text {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-            color: var(--text-dark);
-        }
-        .answer-options {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .answer-option {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            background-color: var(--bg-light);
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .answer-option:hover,
-        .answer-option.selected {
-            background-color: var(--secondary-color);
-            color: var(--bg-white);
-            border-color: var(--secondary-color);
-        }
-        .answer-option input[type="radio"] {
-            margin-right: 1rem;
-            cursor: pointer;
-        }
-        .test-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-secondary {
-            background-color: var(--text-light);
-            color: var(--bg-white);
-        }
-        .btn-secondary:hover:not(:disabled) {
-            background-color: var(--primary-color);
-        }
-        .btn-secondary:disabled,
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .btn-primary {
-            background-color: var(--secondary-color);
-            color: var(--bg-white);
-            flex: 1;
-        }
-        .btn-primary:hover:not(:disabled) {
-            background-color: #2980b9;
-        }
-        .timer {
-            text-align: right;
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-        .warning-text {
-            background-color: #fff3cd;
-            border: 1px solid var(--warning-color);
-            border-radius: 4px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            color: var(--text-dark);
-        }
-        .consent-section {
-            background-color: var(--bg-light);
-            padding: 2rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-        }
-        .consent-item {
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: flex-start;
-        }
-        .consent-item input[type="checkbox"] {
-            margin-right: 1rem;
-            margin-top: 0.25rem;
-            cursor: pointer;
-        }
-        .consent-item label {
-            cursor: pointer;
-            line-height: 1.6;
-        }
+        .test-container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .test-header { background-color: var(--primary-color); color: var(--bg-white); padding: 1.5rem; border-radius: 4px; margin-bottom: 2rem; }
+        .progress-bar { width: 100%; height: 6px; background-color: var(--border-color); border-radius: 3px; margin: 1rem 0; overflow: hidden; }
+        .progress-fill { height: 100%; background-color: var(--secondary-color); width: 0%; transition: width 0.3s ease; }
+        .question-number { color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem; }
+        .question-text { font-size: 1.2rem; margin-bottom: 2rem; line-height: 1.6; color: var(--text-dark); }
+        .answer-options { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+        .answer-option { display: flex; align-items: center; padding: 1rem; background-color: var(--bg-light); border: 2px solid var(--border-color); border-radius: 4px; cursor: pointer; transition: all 0.3s ease; }
+        .answer-option:hover, .answer-option.selected { background-color: var(--secondary-color); color: var(--bg-white); border-color: var(--secondary-color); }
+        .answer-option input[type="radio"] { margin-right: 1rem; cursor: pointer; }
+        .test-buttons { display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-secondary { background-color: var(--text-light); color: var(--bg-white); }
+        .btn-secondary:hover:not(:disabled) { background-color: var(--primary-color); }
+        .btn-secondary:disabled, .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background-color: var(--secondary-color); color: var(--bg-white); flex: 1; }
+        .btn-primary:hover:not(:disabled) { background-color: #2980b9; }
+        .timer { text-align: right; color: var(--text-light); font-size: 0.9rem; }
+        .warning-text { background-color: #fff3cd; border: 1px solid var(--warning-color); border-radius: 4px; padding: 1rem; margin-bottom: 1rem; color: var(--text-dark); }
+        .consent-section { background-color: var(--bg-light); padding: 2rem; border-radius: 4px; margin-bottom: 2rem; }
+        .consent-item { margin-bottom: 1rem; display: flex; align-items: flex-start; }
+        .consent-item input[type="checkbox"] { margin-right: 1rem; margin-top: 0.25rem; cursor: pointer; }
+        .consent-item label { cursor: pointer; line-height: 1.6; }
     </style>
 </head>
 <body>
     <nav class="navbar" aria-label="Navigasi utama">
         <div class="nav-container">
-            <div class="logo">
-                <strong>TA</strong> ASSESS
-                <span class="subtitle">Platform Self-Assessment</span>
-            </div>
+            <div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Platform Self-Assessment</span></div>
         </div>
     </nav>
 
@@ -155,65 +45,38 @@
                 <h2 id="consentTitle">Persetujuan Peserta</h2>
                 <p>Sebelum memulai asesmen, silakan baca dan setujui poin-poin berikut:</p>
             </div>
-
             <div class="consent-section">
-                <div class="consent-item">
-                    <input type="checkbox" id="consent1" required>
-                    <label for="consent1">Saya telah membaca dan memahami bahwa hasil asesmen ini adalah <strong>self-assessment</strong> dan bukan diagnosis psikologis profesional.</label>
-                </div>
-                <div class="consent-item">
-                    <input type="checkbox" id="consent2" required>
-                    <label for="consent2">Saya memahami bahwa hasil ini tidak dimaksudkan sebagai pengganti konsultasi dengan psikolog atau profesional kesehatan mental.</label>
-                </div>
-                <div class="consent-item">
-                    <input type="checkbox" id="consent3" required>
-                    <label for="consent3">Saya bersedia menjawab semua pertanyaan dengan jujur dan sesuai dengan kondisi diri saya.</label>
-                </div>
-                <div class="consent-item">
-                    <input type="checkbox" id="consent4" required>
-                    <label for="consent4">Saya memahami bahwa pemrosesan data mengikuti konfigurasi penyimpanan yang dijelaskan dalam kebijakan privasi dan setup proyek.</label>
-                </div>
-
-                <div class="warning-text">
-                    <strong>Catatan:</strong> Fokuslah pada setiap pertanyaan dan jawab sesuai keadaan Anda. Untuk asesmen mandiri, tidak diperlukan kalkulator atau bantuan eksternal.
-                </div>
-
-                <button id="startBtn" class="cta-button" onclick="startTest()" disabled>
-                    Saya Setuju, Mulai Asesmen
-                </button>
+                <div class="consent-item"><input type="checkbox" id="consent1" required><label for="consent1">Saya telah membaca dan memahami bahwa hasil asesmen ini adalah <strong>self-assessment</strong> dan bukan diagnosis psikologis profesional.</label></div>
+                <div class="consent-item"><input type="checkbox" id="consent2" required><label for="consent2">Saya memahami bahwa hasil ini tidak dimaksudkan sebagai pengganti konsultasi dengan psikolog atau profesional kesehatan mental.</label></div>
+                <div class="consent-item"><input type="checkbox" id="consent3" required><label for="consent3">Saya bersedia menjawab semua pertanyaan dengan jujur dan sesuai dengan kondisi diri saya.</label></div>
+                <div class="consent-item"><input type="checkbox" id="consent4" required><label for="consent4">Saya memahami bahwa pemrosesan data mengikuti konfigurasi penyimpanan yang dijelaskan dalam kebijakan privasi dan setup proyek.</label></div>
+                <div class="warning-text"><strong>Catatan:</strong> Fokuslah pada setiap pertanyaan dan jawab sesuai keadaan Anda. Untuk asesmen mandiri, tidak diperlukan kalkulator atau bantuan eksternal.</div>
+                <button id="startBtn" class="cta-button" onclick="startTest()" disabled>Saya Setuju, Mulai Asesmen</button>
             </div>
         </section>
 
         <section id="testScreen" class="test-screen" style="display: none;" aria-live="polite">
             <div class="test-header">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem;">
-                    <div>
-                        <h3 id="assessmentTitle">Assessment Title</h3>
-                    </div>
+                    <div><h3 id="assessmentTitle">Assessment Title</h3></div>
                     <div class="timer">Waktu Berlalu: <span id="elapsedTime">0:00</span></div>
                 </div>
-                <div class="progress-bar" aria-hidden="true">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
+                <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
                 <div class="question-number" id="questionNumber">Pertanyaan 1 dari 10</div>
             </div>
-
             <div id="questionContainer"></div>
-
             <div class="test-buttons">
                 <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Sebelumnya</button>
                 <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Selanjutnya →</button>
                 <button class="btn btn-primary" id="submitBtn" onclick="submitTest()" style="display: none;">Selesai &amp; Lihat Hasil</button>
             </div>
         </section>
-
-        <div id="loadingScreen" class="loading" style="display: none;" role="status">
-            <p>Memproses hasil asesmen Anda...</p>
-        </div>
+        <div id="loadingScreen" class="loading" style="display: none;" role="status"><p>Memproses hasil asesmen Anda...</p></div>
     </main>
 
     <script src="js/assessments-data.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/runtime-config.js"></script>
     <script src="js/test-engine.js"></script>
 </body>
 </html>
