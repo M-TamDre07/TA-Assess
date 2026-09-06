@@ -1,118 +1,99 @@
 # Struktur Repository TA Assess
 
-Dokumen ini menjadi peta pemeliharaan repository. Struktur dibuat sederhana agar path Vercel dan halaman statis tetap stabil, sementara source backend dipisahkan menurut runtime.
+Dokumen ini menjadi peta singkat repository agar perubahan kode tidak salah menaruh file atau memutus path deployment.
 
-## Prinsip
-
-- Halaman HTML yang menjadi entry point tetap di root karena dipanggil langsung oleh static hosting/Vercel.
-- `css/` hanya berisi stylesheet.
-- `js/` hanya berisi logic frontend dan engine.
-- `api/` hanya berisi Vercel Functions/gateway Node.js.
-- `backend/apps-script/` berisi source Google Apps Script untuk version control; deployment runtime tetap berada di project Apps Script.
-- `backend/php/` adalah boundary source PHP. Saat ini hanya berisi scaffold non-runtime dan tidak menambah endpoint aplikasi.
-- `docs/` berisi dokumentasi teknis Markdown.
-- `assets/` berisi aset statis non-kode.
-- `tests/` berisi pemeriksaan repository dan test engine.
-- `.github/` berisi workflow, template, dan konfigurasi repository.
-
-## Peta file utama
+## Struktur utama
 
 ```text
 TA-Assess/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── workflows/                 # CI + CodeQL
-│   ├── dependabot.yml
-│   └── pull_request_template.md
-├── api/                            # Vercel Functions / gateway Node.js
-│   ├── assessment-session.js       # Membuat sesi asesmen
-│   ├── assessment-submit.js        # Validasi sesi + server proof + submit
-│   ├── assessment-event.js         # Gateway event keamanan/diagnostik
-│   ├── question-bank.js            # Proxy Question Bank
-│   └── system-health.js            # Probe kesehatan backend
-├── assets/                          # Aset statis
+├── api/                         # Vercel Functions / gateway Node.js
+│   ├── assessment-session.js
+│   ├── assessment-submit.js
+│   ├── assessment-event.js
+│   ├── question-bank.js
+│   └── system-health.js
 ├── backend/
-│   ├── apps-script/                # Source Google Apps Script
-│   │   ├── results-backend.gs       # Backend hasil + verifikasi
-│   │   ├── account-backend.gs       # Backend akun/admin
-│   │   ├── question-bank-backend.gs # Backend Question Bank
-│   │   ├── question-bank-editor.html# Editor Question Bank
-│   │   ├── personality-30-seed.gs   # Seed personality pilot 30 item
-│   │   └── maintenance.gs           # Audit/recovery workbook
+│   ├── apps-script/             # Source Google Apps Script
+│   │   ├── index.html           # Editor Question Bank
+│   │   ├── results-backend.gs
+│   │   ├── account-backend.gs
+│   │   ├── question-bank-backend.gs
+│   │   ├── personality-30-seed.gs
+│   │   └── maintenance.gs
 │   └── php/
-│       └── bootstrap.php            # Boundary PHP; belum menjadi endpoint runtime
-├── css/
-│   ├── styles.css                  # Style umum
-│   └── test-responsive.css          # Layout khusus halaman asesmen
-├── docs/                            # Dokumentasi teknis
-├── js/                              # Frontend, engine, account, admin, security
-├── tests/                            # Repository checks + test engine
-├── index.html                        # Beranda
-├── account.html                      # Login/register/dashboard akun
-├── account-results.html              # Viewer hasil tersimpan
-├── account-insights.html             # Profil lengkap
-├── test.html                         # Pengerjaan asesmen
-├── result.html                       # Hasil sementara
-├── verify.html                       # Verifikasi laporan
-├── admin.html                        # Pintu masuk admin
-├── admin-dashboard.html              # Dashboard admin
-├── docs.html                         # Dokumentasi UI publik
-├── 404.html                          # Halaman error
-├── vercel.json                       # Route/header Vercel
-├── robots.txt                        # Crawler directives
-├── site.webmanifest                  # Web app metadata
-├── favicon.svg                       # Favicon
+│       └── bootstrap.php        # Boundary PHP, belum menjadi endpoint
+├── assets/                      # Aset gambar/SVG statis
+├── css/                         # Stylesheet
+├── docs/                        # Dokumentasi teknis
+├── js/                          # Frontend, engine, akun, admin, security
+├── tests/                       # Pemeriksaan repository dan engine
+├── index.html                   # Beranda
+├── test.html                    # Pengerjaan asesmen
+├── result.html                  # Hasil asesmen
+├── verify.html                  # Verifikasi laporan
+├── account.html                 # Akun
+├── account-results.html
+├── account-insights.html
+├── admin.html
+├── admin-dashboard.html
+├── docs.html
+├── 404.html
+├── vercel.json
 ├── README.md
 └── LICENSE
 ```
 
-## Bahasa dan runtime
+## Aturan penempatan
 
-- **HTML/CSS** — halaman dan presentasi frontend.
-- **JavaScript / Node.js** — frontend engine dan Vercel Functions yang aktif.
-- **Google Apps Script** — backend Google Sheets dan service Question Bank/Account yang dideploy terpisah.
-- **PHP** — disiapkan sebagai boundary source untuk pengembangan berikutnya. Scaffold PHP saat ini tidak dipasang sebagai route Vercel dan tidak mengubah alur aplikasi.
+- HTML entry point utama tetap di root karena dipanggil langsung oleh static hosting/Vercel.
+- `api/` hanya untuk fungsi server-side yang dijalankan Vercel.
+- Source Apps Script disimpan di `backend/apps-script/`. File-file ini tetap harus dideploy sebagai project Apps Script terpisah jika memiliki `doGet`/`doPost` sendiri.
+- `backend/apps-script/index.html` adalah file HTMLService untuk editor Question Bank. Apps Script memanggilnya dengan `createHtmlOutputFromFile('index')`.
+- `backend/php/` hanya boundary source PHP. Jangan menambahkan route PHP ke Vercel hanya demi mengaktifkannya.
+- `runtime-config.js` hanya berisi endpoint dan link publik. Secret tetap berada di environment variable Vercel atau Script Properties Apps Script.
 
-Node.js 24.x tetap menjadi runtime Vercel Functions yang aktif. Menambahkan scaffold PHP tidak boleh mengubah runtime Node.js atau routing yang sudah berjalan.
+## Alur backend
 
-## Aturan integrasi
+```text
+Browser
+  │
+  ├── /api/assessment-session
+  ├── /api/assessment-submit ──────> Apps Script Results
+  ├── /api/assessment-event ───────> Apps Script Results
+  └── /api/question-bank ──────────> Apps Script Question Bank
 
-### Backend hasil
+Google Apps Script
+  ├── Results + Verification
+  ├── Account + Admin
+  └── Question Bank + Editor
+```
 
-`js/runtime-config.js` adalah sumber endpoint publik untuk frontend. Gateway di `api/` juga harus menunjuk deployment Apps Script hasil yang sama. Jangan menyisakan deployment lama di salah satu gateway.
+Submission hasil tidak seharusnya melewati Apps Script Results secara langsung dari browser. Gateway Vercel membuat sesi, memeriksa sesi, membuat server proof, lalu meneruskan payload ke backend hasil.
 
-### Question Bank
+## Question Bank
 
-Question Bank berjalan sebagai service terpisah dari backend hasil. Browser memakai `/api/question-bank`, sedangkan gateway tersebut meneruskan request ke Web App Question Bank.
+Question Bank adalah service terpisah dari backend hasil. Browser memakai gateway `/api/question-bank`, sedangkan editor berjalan sebagai HTMLService di project Apps Script Question Bank.
 
-### Account API
+Nama file editor sekarang dibuat sederhana: `index.html`. Ini hanya berlaku untuk folder `backend/apps-script/`; `index.html` di root tetap menjadi beranda TA Assess.
 
-`account-backend.gs` merupakan service terpisah. `CONFIG.ACCOUNT_API` baru dapat diisi setelah Web App Account benar-benar dideploy. Jangan menebak URL deployment.
+## Account API
 
-### Apps Script
+`account-backend.gs` merupakan service Apps Script terpisah. `CONFIG.ACCOUNT_API` tidak boleh diisi dengan URL tebakan. Isi hanya setelah Web App Account benar-benar dideploy dan diuji.
 
-`results-backend.gs`, `account-backend.gs`, dan `question-bank-backend.gs` masing-masing memiliki `doGet`/`doPost` dan secara operasional harus dideploy sebagai project Web App Apps Script yang terpisah bila semuanya digunakan. Nama file di repository tidak mengubah kebutuhan pemisahan deployment.
+## PHP
 
-### PHP
-
-PHP hanya menjadi source boundary pada tahap maintenance ini. Jangan menambahkan route PHP ke `vercel.json` atau mengganti gateway Node.js hanya untuk membuat PHP terlihat aktif. Setiap integrasi PHP di masa depan harus melalui keputusan deployment yang terpisah dan diuji tanpa memutus gateway Node.js.
-
-### Question fallback
-
-`test-engine.js` mencoba Question Bank terlebih dahulu dan memakai fallback lokal ketika service tidak tersedia. Karena itu perubahan metadata jumlah soal harus diperiksa terhadap fallback lokal dan Question Bank; jangan mengubah angka hanya untuk membuat tampilan terlihat benar.
+PHP disiapkan sebagai boundary source untuk kebutuhan pengembangan berikutnya. Saat ini PHP tidak dipakai sebagai runtime aplikasi dan tidak mengubah routing Vercel.
 
 ## Checklist maintenance
 
-1. Periksa tree dan path lokal.
-2. Periksa seluruh `href`/`src` lokal.
-3. Periksa endpoint Apps Script agar tidak kembali ke deployment lama.
-4. Periksa integrasi `runtime-config.js` dengan gateway Vercel.
-5. Periksa environment secret tanpa pernah menaruh nilainya di repository.
-6. Periksa fallback Question Bank dan versioning instrumen.
-7. Periksa syntax JavaScript, Apps Script, dan scaffold PHP.
-8. Jalankan `node tests/check-repository.js`.
-9. Jalankan `node tests/run-tests.js`.
-10. Periksa CI/CodeQL setelah commit.
-11. Periksa health endpoint setelah deployment.
-12. Periksa Google Apps Script deployment dan Script Properties secara terpisah.
-13. Jangan menganggap status CI sebagai bukti deployment backend atau browser e2e.
+1. Periksa path file dan referensi `href`/`src`.
+2. Pastikan endpoint Apps Script yang dipakai gateway adalah deployment yang benar.
+3. Pastikan `TA_ASSESS_SERVER_SECRET` di Vercel dan `TA_SERVER_SHARED_SECRET` di Apps Script memiliki nilai yang sama.
+4. Pastikan secret tidak pernah masuk ke repository.
+5. Periksa Question Bank dan fallback lokal sebelum mengubah jumlah soal.
+6. Jalankan `node tests/check-repository.js`.
+7. Jalankan `node tests/run-tests.js`.
+8. Periksa GitHub Actions setelah commit.
+9. Setelah deployment, cek health endpoint dan uji alur browser secara nyata.
+
+CI hanya memeriksa source dan struktur repository. CI bukan bukti bahwa deployment Apps Script, Vercel, Google Sheets, atau browser e2e sudah berhasil.
