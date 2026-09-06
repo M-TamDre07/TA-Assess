@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Profil Lengkap | TA Assess</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .insights-page{min-height:100vh;padding:110px 20px 60px;background:#f5f7fa}
+    .insights-shell{max-width:980px;margin:auto}
+    .insight-card{background:#fff;border:1px solid #e2e8ee;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 8px 24px rgba(30,45,60,.05)}
+    .insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .profile-item{border:1px solid #e1e7ed;border-radius:12px;padding:16px}
+    .profile-score{font-size:1.7rem;font-weight:800;color:#2d6ea3;margin-top:5px}
+    .profile-bar{height:8px;background:#e9eef2;border-radius:999px;overflow:hidden;margin-top:10px}
+    .profile-fill{height:100%;background:#3498db}
+    .muted{color:#667684;line-height:1.65}
+    .notice{background:#eef6ff;border-left:4px solid #3498db;padding:14px;border-radius:10px;color:#36556d}
+    .warning{background:#fff8e6;border-left:4px solid #e4ad2f;padding:14px;border-radius:10px;color:#725c15}
+    .error{background:#fff0f0;color:#9b2226;padding:12px;border-radius:10px}
+    .back{display:inline-block;margin-bottom:16px}
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Navigasi utama">
+    <div class="nav-container">
+      <div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Profil Lengkap</span></div>
+      <div class="nav-links"><a href="account.html" class="nav-link">Akun</a><a href="index.html" class="nav-link">Beranda</a></div>
+    </div>
+  </nav>
+  <main class="insights-page">
+    <div class="insights-shell">
+      <a class="back" href="account.html">Kembali ke Akun</a>
+      <div id="message"></div>
+      <section id="profileContent" hidden>
+        <section class="insight-card">
+          <h1>Profil Lengkap TA Assess</h1>
+          <p id="profileMeta" class="muted"></p>
+          <div class="notice"><strong>Profil ini bersifat reflektif.</strong> Ringkasan menggabungkan hasil yang tersimpan dari asesmen yang telah Anda selesaikan. Ini bukan diagnosis dan bukan penilaian psikologis profesional.</div>
+        </section>
+        <section class="insight-card"><h2>Kepribadian</h2><div id="personalityScores" class="insight-grid"></div></section>
+        <section class="insight-card"><h2>Minat Karier</h2><div id="careerScores" class="insight-grid"></div></section>
+        <section class="insight-card"><h2>Preferensi Belajar</h2><div id="learningScores" class="insight-grid"></div></section>
+        <section class="insight-card"><h2>Ringkasan Refleksi</h2><div id="reflection"></div></section>
+        <section class="insight-card"><div class="warning"><strong>Catatan:</strong> instrumen yang digunakan masih berada pada tahap pilot dan belum diklaim tervalidasi secara psikometrik. Gunakan hasil sebagai bahan refleksi, bukan sebagai dasar keputusan formal.</div></section>
+      </section>
+    </div>
+  </main>
+  <script src="js/runtime-config.js"></script>
+  <script src="js/account-insights.js"></script>
+</body>
+</html>
