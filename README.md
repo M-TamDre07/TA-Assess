@@ -1,39 +1,60 @@
-# TA Assess V2
+# TA Assess V2 — Dokumentasi Proyek
 
-Platform web self-assessment (eksplorasi diri) — ringan, mobile-first, tanpa backend wajib untuk berjalan secara demo.
+## Overview
 
-**Status proyek: DEMO / PILOT.** Belum ada instrumen yang divalidasi secara psikometrik. Lihat `docs/ASSESSMENT-METHODOLOGY.md`.
+TA Assess adalah platform web untuk asesmen mandiri (self-assessment) berbasis kuesioner Likert. Platform ini **bukan** lembaga psikologi dan hasilnya **bukan diagnosis**. Semua instrumen berstatus DEMO atau PILOT — lihat `ASSESSMENT-METHODOLOGY.md`.
 
-## Mulai cepat
+## Fitur yang benar-benar bekerja
 
-1. Buka `index.html` langsung di browser, atau jalankan local server: `python3 -m http.server` lalu buka `http://localhost:8000`.
-2. Baca `docs/SETUP.md` untuk mengisi konfigurasi (Google Sheets, feedback form, dll — semuanya opsional, platform tetap berjalan tanpa itu).
-3. Jalankan test otomatis: `node tests/run-tests.js`.
+- Katalog asesmen, detail per instrumen, alur consent → soal → hasil
+- Scoring engine dengan validasi rentang jawaban, reverse scoring, null-safe (tidak pernah NaN/Infinity)
+- Validasi jawaban belum lengkap (tidak bisa submit jika masih ada soal kosong)
+- Autosave progres per sesi browser (sessionStorage) + tawaran resume
+- Report ID tunggal & konsisten dipakai di seluruh alur (hasil, PDF, QR, penyimpanan verifikasi demo, payload Google Sheets)
+- PDF report (via html2pdf.js, CDN)
+- QR code (via api.qrserver.com, tanpa API key)
+- Verifikasi laporan mode **DEMO** (localStorage, satu browser — lihat ASSESSMENT-METHODOLOGY.md)
+- Insight Assistant rule-based (Level 1, tanpa API key)
+- Recommendation engine berbasis rule config, terpisah dari kode UI
+- Integrasi Google Sheets opsional lewat `google-apps-script/code.gs` (nonaktif otomatis jika belum dikonfigurasi)
+- Data validation otomatis (`checkAssessmentData()`) yang mendeteksi ketidakcocokan metadata vs soal aktual
 
-## Dokumentasi lengkap
+## Fitur yang masih DEMO / belum lengkap
 
-- `docs/README.md` — arsitektur, struktur file, cara menambah asesmen
-- `docs/SETUP.md` — konfigurasi Google Sheets / feedback / donasi
-- `docs/ASSESSMENT-METHODOLOGY.md` — batasan, versioning, status validasi, arsitektur verifikasi
-- `docs/PRIVACY.md` — data apa yang dikumpulkan (dan tidak)
-- `docs/TEST_REPORT.md` — hasil pengujian aktual (bukan klaim tanpa bukti)
+- Jumlah soal per instrumen jauh dari jumlah ideal produksi (lihat tabel di bawah) — metadata sudah disesuaikan agar **jujur** (metadata = jumlah soal aktual), bukan mengklaim jumlah yang tidak ada.
+- Verifikasi laporan hanya berjalan di browser yang sama (localStorage), belum ada backend lintas-perangkat.
+- Belum ada data normatif — semua skor bersifat relatif dalam asesmen itu sendiri, bukan persentil nasional.
+- Integrasi Telegram baru berupa placeholder konfigurasi (butuh backend/Apps Script terpisah, tidak diimplementasikan penuh karena token bot tidak boleh berada di frontend).
+- Level 3 Insight Assistant (external AI API) belum diimplementasikan — sengaja, karena MVP tidak boleh bergantung pada API key.
 
-## Struktur folder
+## Instrumen saat ini
+
+| ID | Nama | Status | Jumlah Soal | Dimensi |
+|---|---|---|---|---|
+| PERSONALITY-01 | Big Five Personality — Demo | DEMO | 10 | 5 |
+| CAREER-01 | Career Interest Exploration — Demo | DEMO | 6 | 6 |
+| LEARNING-01 | Learning Preferences — Demo | PILOT | 4 | 4 |
+
+## Cara menambah asesmen baru
+
+1. Tambahkan entri di `assessments` (`js/assessments-data.js`) dengan semua field wajib: `developmentStatus`, `validationStatus`, `instrumentVersion`, `scoringVersion`, `lastUpdated`, `items` (harus sama dengan jumlah soal), `intendedUse`, `excludedUse`.
+2. Tambahkan soal di `questionsDatabase[ASSESSMENT_ID]`.
+3. Tambahkan konfigurasi di `scoringConfiguration[ASSESSMENT_ID]` (dimensions + thresholds).
+4. (Opsional) Tambahkan interpretasi di `interpretationGuides[ASSESSMENT_ID]` — jika tidak ada, sistem otomatis menampilkan fallback "Interpretasi belum tersedia".
+5. Jalankan `node tests/run-tests.js` — test pertama akan gagal jika `items` tidak cocok dengan jumlah soal aktual.
+
+## Keterbatasan (jangan disembunyikan ke pengguna)
+
+- Bukan instrumen psikologi tervalidasi/tersertifikasi.
+- Bukan pengganti konsultasi profesional.
+- Skor relatif, bukan skor ternormalisasi terhadap populasi.
+- Verifikasi laporan mode DEMO, bukan sistem anti-pemalsuan.
+- Insight Assistant adalah rule-based sederhana, bukan model AI yang "memahami" pengguna.
+
+## Testing
 
 ```
-ta-assess/
-├── index.html / test.html / result.html / verify.html
-├── css/styles.css
-├── js/
-│   ├── assessments-data.js      # data + validasi konsistensi
-│   ├── script.js                # config, scoring engine, ID generator
-│   ├── test-engine.js           # alur pengerjaan soal
-│   ├── result-engine.js         # tampilan hasil & PDF
-│   ├── recommendation-engine.js # rule-based, terpisah dari UI
-│   └── insight-engine.js        # Insight Assistant rule-based (Level 1)
-├── google-apps-script/code.gs   # backend opsional untuk Google Sheets
-├── tests/run-tests.js           # automated test (node tests/run-tests.js)
-└── docs/
+node tests/run-tests.js
 ```
 
-© Tama Andrea Studio
+Lihat `docs/TEST_REPORT.md` untuk hasil aktual terakhir.
