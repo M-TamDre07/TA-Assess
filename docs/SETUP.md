@@ -6,7 +6,7 @@ Dokumen ini menjelaskan cara memasang backend Google Apps Script untuk TA Assess
 
 Buat satu Google Spreadsheet khusus untuk TA Assess.
 
-Tidak perlu membuat tabel secara manual. `code.gs` akan membuat dan menata sheet yang diperlukan secara otomatis saat `setupTAAssess()` dijalankan atau ketika endpoint menerima request pertama.
+Tidak perlu membuat tabel secara manual. `results-backend.gs` akan membuat dan menata sheet yang diperlukan secara otomatis saat `setupTAAssess()` dijalankan atau ketika endpoint menerima request pertama.
 
 Sheet yang akan dibuat:
 
@@ -22,12 +22,12 @@ Sheet yang akan dibuat:
 
 Header, freeze row, filter, dan penyesuaian kolom dibuat otomatis.
 
-## 2. Pasang `code.gs`
+## 2. Pasang `results-backend.gs`
 
 1. Buka Spreadsheet.
 2. Pilih **Extensions → Apps Script**.
 3. Hapus kode default.
-4. Copy seluruh isi `google-apps-script/code.gs` dari repository ini.
+4. Copy seluruh isi `backend/apps-script/results-backend.gs` dari repository ini.
 5. Save project.
 
 Karena script digunakan sebagai Web App, jalankan `setupTAAssess()` satu kali dari editor Apps Script agar Google meminta authorization dan semua sheet dapat dipastikan terbentuk.
@@ -52,9 +52,17 @@ Sangat disarankan untuk mode verifikasi backend.
 
 Gunakan string rahasia yang panjang dan acak. Jangan masukkan secret ini ke repository GitHub atau file frontend.
 
-Jika tersedia, `code.gs` menggunakan HMAC-SHA256 untuk signature laporan. Google Apps Script menyediakan `Utilities.computeHmacSha256Signature()` untuk pembuatan signature berbasis kunci.
+Jika tersedia, `results-backend.gs` menggunakan HMAC-SHA256 untuk signature laporan. Google Apps Script menyediakan `Utilities.computeHmacSha256Signature()` untuk pembuatan signature berbasis kunci.
 
 Tanpa secret, sistem masih dapat berjalan menggunakan `DEMO-CHECKSUM`, tetapi jangan menganggapnya sebagai tanda tangan anti-pemalsuan produksi.
+
+### `TA_SERVER_SHARED_SECRET`
+
+Wajib untuk alur submission yang melewati gateway Vercel.
+
+Nilainya harus **sama persis** dengan nilai Vercel environment variable `TA_ASSESS_SERVER_SECRET`. Nama property berbeda karena masing-masing runtime memiliki namespace konfigurasi sendiri.
+
+Jangan pernah memasukkan nilai aslinya ke `.env.example`, source code, GitHub, atau frontend.
 
 ### Telegram (opsional)
 
@@ -97,7 +105,7 @@ CONFIG.GOOGLE_SHEETS_API = 'URL_WEB_APP_ANDA';
 
 Halaman `index.html`, `test.html`, `result.html`, dan `verify.html` memuat runtime config tersebut. Karena URL Web App memang harus diketahui browser untuk melakukan request, endpoint bukan secret.
 
-**Jangan pernah menaruh API key, `TELEGRAM_BOT_TOKEN`, password, atau `TA_VERIFY_SECRET` di frontend.** Secret hanya berada di Script Properties Google Apps Script.
+**Jangan pernah menaruh API key, `TELEGRAM_BOT_TOKEN`, password, atau secret di frontend.**
 
 ## 6. Endpoint yang tersedia
 
@@ -123,32 +131,7 @@ Jangan membuat endpoint publik yang mengembalikan seluruh isi `Results` atau `Di
 
 ### Submit result
 
-Frontend mengirim JSON melalui `POST` dengan `action=submitResult`.
-
-Payload minimum:
-
-```json
-{
-  "action": "submitResult",
-  "reportId": "PERSON-ABC123-XYZ99",
-  "assessmentId": "PERSONALITY-01",
-  "assessmentName": "Big Five Personality — Demo",
-  "instrumentVersion": "0.1",
-  "scoringVersion": "0.1",
-  "reportVersion": "0.1",
-  "appVersion": "0.3.0",
-  "answersCount": 10,
-  "totalQuestions": 10,
-  "duration": 180000,
-  "status": "DEMO",
-  "scores": {
-    "Openness": 3.5,
-    "Conscientiousness": 4.0
-  }
-}
-```
-
-`dimensionStats` dapat ditambahkan bila frontend ingin menyimpan jumlah item per dimensi.
+Frontend mengirim JSON melalui `POST` dengan `action=submitResult`. Pada jalur aktif, request melewati Vercel gateway terlebih dahulu sehingga server proof dapat diperiksa oleh backend Apps Script.
 
 Jawaban mentah tidak disimpan oleh backend ini.
 
@@ -218,14 +201,24 @@ Google Sheets
 
 Token bot dan chat ID hanya berada di Script Properties.
 
-## 11. Checklist setelah deployment
+## 11. Account dan Question Bank
+
+`account-backend.gs` dan `question-bank-backend.gs` adalah service terpisah secara operasional. Meskipun source berada di folder yang sama, masing-masing deployment Web App harus memiliki project Apps Script sendiri agar `doGet`/`doPost` tidak saling bertabrakan.
+
+`question-bank-editor.html` digunakan sebagai editor di project Question Bank. Mutasi Question Bank tetap membutuhkan admin key yang disimpan di Script Properties.
+
+## 12. PHP boundary
+
+`backend/php/bootstrap.php` hanya merupakan scaffold source PHP untuk menjaga struktur repository tetap siap dikembangkan. Tidak ada endpoint PHP yang aktif pada maintenance ini dan Vercel gateway tetap menggunakan Node.js.
+
+## 13. Checklist setelah deployment
 
 Jalankan pemeriksaan source dari repository:
 
 ```bash
 node tests/run-tests.js
 node tests/check-repository.js
-node --check google-apps-script/code.gs
+php -l backend/php/bootstrap.php
 ```
 
 Kemudian uji deployment secara nyata:
@@ -234,10 +227,12 @@ Kemudian uji deployment secara nyata:
 2. Pastikan response `success: true`.
 3. Pastikan daftar sheet sesuai dengan struktur backend.
 4. Pastikan `verificationMode` menjadi `BACKEND-SIGNED` setelah `TA_VERIFY_SECRET` diatur.
-5. Jalankan satu asesmen demo dari website.
-6. Pastikan satu record masuk ke `Results` dan metadata verifikasi masuk ke `Verification`.
-7. Buka halaman verifikasi menggunakan Report ID tersebut.
-8. Uji ID palsu dan pastikan statusnya `NOT_FOUND`.
-9. Uji QR pada laporan dan pastikan menuju `verify.html?id=...`.
+5. Pastikan `submissionSecurity` menjadi `REQUIRED` setelah `TA_SERVER_SHARED_SECRET` diatur.
+6. Pastikan nilai `TA_SERVER_SHARED_SECRET` di Apps Script sama persis dengan `TA_ASSESS_SERVER_SECRET` pada Vercel.
+7. Jalankan satu asesmen demo dari website.
+8. Pastikan satu record masuk ke `Results` dan metadata verifikasi masuk ke `Verification`.
+9. Buka halaman verifikasi menggunakan Report ID tersebut.
+10. Uji ID palsu dan pastikan statusnya `NOT_FOUND`.
+11. Uji QR pada laporan dan pastikan menuju `verify.html?id=...`.
 
 CI GitHub memeriksa struktur source dan link/path lokal secara otomatis. CI **tidak** menggantikan pengujian deployment Google Apps Script, Google Sheets, Vercel, browser, PDF, dan QR secara langsung.

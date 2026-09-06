@@ -59,7 +59,10 @@ jobs:
         shell: bash
         run: |
           set -e
-          for file in google-apps-script/*.gs; do
+          for file in backend/apps-script/*.gs; do
             echo "Checking $file"
             node --check < "$file"
           done
+
+      - name: Syntax check PHP scaffold
+        run: php -l backend/php/bootstrap.php

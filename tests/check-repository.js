@@ -9,7 +9,7 @@ function exists(relativePath){return fs.existsSync(path.join(ROOT,relativePath))
 function read(relativePath){return fs.readFileSync(path.join(ROOT,relativePath),'utf8');}
 function assert(condition,message){if(!condition)errors.push(message);}
 
-const requiredFiles=['index.html','docs.html','404.html','favicon.svg','site.webmanifest','robots.txt','CODEOWNERS','test.html','result.html','verify.html','admin.html','admin-dashboard.html','assets/docs-hero.svg','css/styles.css','js/assessments-data.js','js/script.js','js/test-engine.js','js/result-engine.js','js/insight-engine.js','js/recommendation-engine.js','js/runtime-config.js','js/assessment-calibration.js','js/security-hardening.js','js/client-diagnostics.js','js/admin-dashboard.js','api/assessment-session.js','api/assessment-submit.js','api/assessment-event.js','api/system-health.js','tests/run-tests.js','google-apps-script/code.gs','google-apps-script/account.gs','google-apps-script/maintenance.gs','README.md','docs/SETUP.md','docs/PRIVACY.md','docs/ASSESSMENT-METHODOLOGY.md','docs/ACCOUNT-SECURITY.md','docs/SECURITY-DEPLOYMENT.md','docs/CONTRIBUTING.md','docs/SECURITY.md','docs/SEO-DEPLOYMENT.md'];
+const requiredFiles=['index.html','docs.html','404.html','favicon.svg','site.webmanifest','robots.txt','CODEOWNERS','test.html','result.html','verify.html','admin.html','admin-dashboard.html','assets/docs-hero.svg','css/styles.css','js/assessments-data.js','js/script.js','js/test-engine.js','js/result-engine.js','js/insight-engine.js','js/recommendation-engine.js','js/runtime-config.js','js/assessment-calibration.js','js/security-hardening.js','js/client-diagnostics.js','js/admin-dashboard.js','api/assessment-session.js','api/assessment-submit.js','api/assessment-event.js','api/system-health.js','tests/run-tests.js','backend/apps-script/results-backend.gs','backend/apps-script/account-backend.gs','backend/apps-script/question-bank-backend.gs','backend/apps-script/question-bank-editor.html','backend/apps-script/maintenance.gs','backend/apps-script/personality-30-seed.gs','backend/php/bootstrap.php','README.md','docs/SETUP.md','docs/PRIVACY.md','docs/ASSESSMENT-METHODOLOGY.md','docs/ACCOUNT-SECURITY.md','docs/SECURITY-DEPLOYMENT.md','docs/CONTRIBUTING.md','docs/SECURITY.md','docs/SEO-DEPLOYMENT.md','docs/REPOSITORY-STRUCTURE.md'];
 requiredFiles.forEach(file=>assert(exists(file),`File wajib tidak ditemukan: ${file}`));
 
 const htmlFiles=['index.html','docs.html','test.html','result.html','verify.html','admin.html','admin-dashboard.html'];
@@ -51,16 +51,16 @@ assert(test.includes('js/security-hardening.js'),'test.html belum memuat securit
 assert(test.includes('js/client-diagnostics.js'),'test.html belum memuat client diagnostics');
 assert(test.includes('js/personality-fallback-30.js'),'test.html belum memuat fallback personality 30 item');
 
-const backend=read('google-apps-script/code.gs');
+const backend=read('backend/apps-script/results-backend.gs');
 assert(backend.includes('TA_SERVER_SHARED_SECRET'),'backend belum memiliki shared secret submission');
 assert(backend.includes('requireServerProof_'),'backend belum menegakkan server proof');
 
-const maintenance=read('google-apps-script/maintenance.gs');
+const maintenance=read('backend/apps-script/maintenance.gs');
 assert(maintenance.includes('runMaintenanceAudit'),'maintenance backend belum memiliki audit entry point');
 assert(maintenance.includes('repairHeader_'),'maintenance backend belum memiliki safe header recovery');
 assert(maintenance.includes('updateAnalytics_'),'maintenance backend belum merebuild analytics');
 
-const account=read('google-apps-script/account.gs');
+const account=read('backend/apps-script/account-backend.gs');
 assert(account.includes('adminDeleteReport_'),'account backend belum memiliki admin delete report');
 assert(account.includes('adminDeleteUser_'),'account backend belum memiliki admin delete user');
 assert(account.includes('adminSetUserStatus_'),'account backend belum memiliki admin status control');
@@ -118,4 +118,14 @@ assert(!docs.includes('docs/PRIVACY.md">Baca sumber'),'docs.html masih melempar 
 const codeowners=read('CODEOWNERS');
 assert(codeowners.includes('@M-TamDre07'),'CODEOWNERS belum menunjuk maintainer');
 
-if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, docs UI, visible asset, backend endpoint consistency, health, maintenance recovery, admin redaction, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
+const php=read('backend/php/bootstrap.php');
+assert(php.includes('<?php'),'PHP scaffold tidak valid');
+assert(php.includes('declare(strict_types=1);'),'PHP scaffold belum menggunakan strict types');
+assert(!php.includes('http_response_code('),'PHP scaffold tidak boleh menjadi endpoint aktif pada maintenance ini');
+
+const env=read('.env.example');
+assert(env.includes('TA_ASSESS_SERVER_SECRET='),'.env.example belum mendokumentasikan secret gateway Vercel');
+assert(env.includes('TA_SERVER_SHARED_SECRET='),'.env.example belum mendokumentasikan shared secret Apps Script');
+assert(env.includes('use-the-same-long-random-secret-as-vercel'),'.env.example belum menjelaskan bahwa kedua secret harus memiliki nilai yang sama');
+
+if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, docs UI, visible asset, backend endpoint consistency, health, maintenance recovery, admin redaction, SEO assets, security wiring, runtime config, verification wiring, backend organization, and PHP boundary are consistent.');process.exitCode=0;}

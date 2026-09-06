@@ -67,9 +67,11 @@ TA-Assess/
 ├── .github/                    # CI, CodeQL, template, Dependabot
 ├── api/                        # Vercel gateway/server functions
 ├── assets/                     # aset statis
+├── backend/
+│   ├── apps-script/            # source Google Apps Script
+│   └── php/                    # boundary source PHP, belum menjadi runtime aplikasi
 ├── css/                        # stylesheet
 ├── docs/                       # dokumentasi teknis
-├── google-apps-script/         # source backend Apps Script
 ├── js/                         # frontend, engine, account, admin, security
 ├── tests/                      # repository checks + test engine
 ├── index.html                  # beranda
@@ -93,7 +95,14 @@ TA-Assess/
 
 Lihat [`docs/REPOSITORY-STRUCTURE.md`](docs/REPOSITORY-STRUCTURE.md) untuk peta file yang lebih rinci dan aturan maintenance. Halaman HTML entry point sengaja tetap di root karena dipanggil langsung oleh static hosting/Vercel; memindahkannya ke subfolder tanpa kebutuhan deployment akan meningkatkan risiko path rusak.
 
-`google-apps-script/code.gs`, `account.gs`, dan `question-bank.gs` disimpan sebagai source/version-control. Karena masing-masing memiliki `doGet`/`doPost`, ketiga service tersebut harus dipisahkan secara operasional menjadi Web App/project Apps Script yang berbeda bila semuanya dideploy. Source tetap boleh berada dalam satu folder repository.
+## Bahasa dan Runtime
+
+- **HTML/CSS** — halaman dan presentasi frontend.
+- **JavaScript / Node.js 24.x** — frontend engine dan Vercel Functions yang aktif.
+- **Google Apps Script** — backend Google Sheets dan service Question Bank/Account yang dideploy terpisah.
+- **PHP** — disiapkan sebagai boundary source untuk pengembangan berikutnya. Scaffold PHP saat ini tidak menjadi endpoint dan tidak mengubah alur aplikasi.
+
+Penambahan scaffold PHP tidak mengganti runtime Node.js Vercel dan tidak menambahkan fitur aplikasi.
 
 ## Admin
 
@@ -119,13 +128,12 @@ Repository memiliki pemeriksaan otomatis untuk mengurangi risiko link/path/confi
 ```bash
 node tests/run-tests.js
 node tests/check-repository.js
-node --check google-apps-script/code.gs
-node --check google-apps-script/account.gs
+php -l backend/php/bootstrap.php
 ```
 
-GitHub Actions menjalankan pemeriksaan tersebut pada push ke `main` dan pull request ke `main`, termasuk syntax check untuk JavaScript frontend dan source Apps Script. CodeQL melakukan analisis keamanan JavaScript, sedangkan Dependabot memantau GitHub Actions.
+GitHub Actions menjalankan pemeriksaan tersebut pada push ke `main` dan pull request ke `main`, termasuk syntax check untuk JavaScript frontend, Vercel Functions, Apps Script, dan scaffold PHP. CodeQL melakukan analisis keamanan JavaScript, sedangkan Dependabot memantau GitHub Actions.
 
-`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js`, pola secret umum di runtime config, konsistensi endpoint backend, wiring halaman verifikasi, admin backend, route `/admin`, dokumentasi UI, dan asset SEO.
+`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js`, pola secret umum di runtime config, konsistensi endpoint backend, wiring halaman verifikasi, admin backend, route `/admin`, dokumentasi UI, asset SEO, struktur backend, dan boundary PHP.
 
 > **Catatan:** CI membuktikan konsistensi source code dan struktur repository. CI tidak dapat membuktikan deployment Google Apps Script, Google Sheets, Vercel, PDF, kamera, atau browser secara nyata tanpa pengujian integrasi/e2e terpisah.
 
@@ -145,6 +153,12 @@ Untuk pemeriksaan struktur dan tautan lokal:
 node tests/check-repository.js
 ```
 
+Untuk pemeriksaan scaffold PHP:
+
+```bash
+php -l backend/php/bootstrap.php
+```
+
 Untuk penggunaan melalui browser, jalankan proyek menggunakan static server sederhana atau hosting statis seperti Vercel atau Netlify.
 
 ## Konfigurasi
@@ -154,6 +168,14 @@ Engine utama berada di `js/script.js`. Endpoint dan tautan publik deployment ber
 `runtime-config.js` hanya boleh berisi informasi yang memang aman terlihat oleh publik, seperti URL Web App, Formspree, Saweria, dan URL publik Account API.
 
 **Jangan pernah menaruh API key, token bot, password, `SPREADSHEET_ID`, atau secret lain di file JavaScript frontend.**
+
+### Shared backend security secret
+
+Gateway Vercel memakai environment variable `TA_ASSESS_SERVER_SECRET`. Backend Google Apps Script memakai Script Property `TA_SERVER_SHARED_SECRET`. **Nilai rahasianya harus sama**, tetapi kedua nama variabel tetap berbeda sesuai runtime masing-masing.
+
+Contoh konfigurasi dokumentasi tersedia di `.env.example`. File tersebut hanya berisi placeholder dan tidak boleh diisi dengan nilai produksi lalu di-commit.
+
+Vercel environment variables tidak dapat diverifikasi dari source GitHub. Setelah perubahan konfigurasi, periksa Project Settings → Environment Variables di Vercel dan pastikan `TA_ASSESS_SERVER_SECRET` tersedia untuk environment deployment yang digunakan.
 
 ## Backend Google Sheets
 
@@ -186,7 +208,7 @@ Mode verifikasi laporan dapat menggunakan signature HMAC-SHA256 jika `TA_VERIFY_
 
 Account API dibuat sebagai deployment Google Apps Script terpisah agar backend asesmen utama tetap stabil. Keduanya dapat menunjuk ke Spreadsheet yang sama melalui Script Property `SPREADSHEET_ID`.
 
-Setelah `google-apps-script/account.gs` dideploy sebagai Web App, URL `/exec` deployment diisi ke:
+Setelah `backend/apps-script/account-backend.gs` dideploy sebagai Web App, URL `/exec` deployment diisi ke:
 
 ```js
 CONFIG.ACCOUNT_API = 'https://script.google.com/macros/s/.../exec';
