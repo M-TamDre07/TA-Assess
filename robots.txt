@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /admin-dashboard.html
+Disallow: /test.html
+Disallow: /api/
+Disallow: /google-apps-script/
+Disallow: /js/
+Disallow: /css/
+Disallow: /docs/*.md
