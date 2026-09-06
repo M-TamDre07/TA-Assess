@@ -1,5 +1,6 @@
-/* TA ASSESS — layered browser-side integrity controls
- * These controls are signals and deterrents only. They are not proof of cheating.
+/* TA ASSESS | Layered browser integrity controls
+ * These controls deter copying and signal suspicious conditions.
+ * They are not proof of cheating and must not change the assessment score by themselves.
  */
 (function(){
   'use strict';
@@ -7,10 +8,35 @@
   const TAB_KEY='ta_assess_tab_id';
   let channel=null;
   let tabId=sessionStorage.getItem(TAB_KEY);
+  let overlay=null;
   if(!tabId){tabId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());sessionStorage.setItem(TAB_KEY,tabId);}
 
-  function active(){return typeof testState!=='undefined' && testState.startTime && !testState.submitted;}
+  function active(){return typeof testState!=='undefined'&&testState.startTime&&!testState.submitted;}
   function signal(name,meta={}){if(typeof registerIntegritySignal==='function')registerIntegritySignal(name,meta);}
+  function ensureOverlay(){
+    if(overlay)return overlay;
+    overlay=document.createElement('div');
+    overlay.id='taIntegrityOverlay';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.style.cssText='display:none;position:fixed;inset:0;z-index:9998;background:rgba(20,32,44,.96);color:#fff;align-items:center;justify-content:center;text-align:center;padding:28px;font:600 1rem/1.6 system-ui,sans-serif;';
+    overlay.innerHTML='<div><div style="font-size:1.15rem;margin-bottom:8px">Sesi asesmen sedang dijeda</div><div>Halaman ini disembunyikan sementara karena jendela tidak sedang aktif. Kembali ke halaman asesmen untuk melanjutkan.</div></div>';
+    document.body.appendChild(overlay);
+    return overlay;
+  }
+  function setHidden(hidden){const el=ensureOverlay();el.style.display=hidden?'flex':'none';}
+  function shuffleQuestions(){
+    if(typeof testState==='undefined'||!Array.isArray(testState.questions)||testState.questions.length<2)return;
+    for(let i=testState.questions.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[testState.questions[i],testState.questions[j]]=[testState.questions[j],testState.questions[i]];}
+    testState.currentQuestion=0;
+  }
+  function requestFullscreen(){
+    try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});}catch(_){ }
+  }
+  function watermark(){
+    const header=document.querySelector('.test-header');
+    if(!header||header.querySelector('.ta-session-watermark'))return;
+    const mark=document.createElement('div');mark.className='ta-session-watermark';mark.textContent=`Sesi ${tabId.slice(0,8)}`;mark.style.cssText='font-size:.72rem;opacity:.58;margin-top:8px;user-select:none;';header.appendChild(mark);
+  }
 
   function setup(){
     if(typeof BroadcastChannel==='function'){
@@ -23,23 +49,32 @@
 
     document.addEventListener('copy',e=>{if(!active())return;e.preventDefault();signal('copy_blocked');});
     document.addEventListener('cut',e=>{if(!active())return;e.preventDefault();signal('cut_blocked');});
+    document.addEventListener('paste',e=>{if(!active())return;e.preventDefault();signal('paste_blocked');});
     document.addEventListener('contextmenu',e=>{if(!active())return;e.preventDefault();signal('context_menu_blocked');});
     document.addEventListener('dragstart',e=>{if(!active())return;e.preventDefault();signal('drag_blocked');});
+    document.addEventListener('selectstart',e=>{if(active()&&e.target&&!['TEXTAREA','INPUT'].includes(e.target.tagName))e.preventDefault();});
     document.addEventListener('keydown',e=>{
       if(!active())return;
       const k=String(e.key||'').toLowerCase();
-      const blocked=(e.ctrlKey&&['c','x','v','u','s','p'].includes(k)) || (e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k)) || k==='f12';
+      const blocked=(e.ctrlKey&&['c','x','v','u','s','p'].includes(k))||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k))||k==='f12';
       if(blocked){e.preventDefault();signal('restricted_shortcut',{key:k});}
     },true);
 
-    window.addEventListener('blur',()=>{if(active())signal('window_blur');});
-    window.addEventListener('focus',()=>{if(active())signal('window_focus_return');});
+    window.addEventListener('blur',()=>{if(active()){signal('window_blur');setHidden(true);}});
+    window.addEventListener('focus',()=>{if(active()){signal('window_focus_return');setHidden(false);}});
+    document.addEventListener('visibilitychange',()=>{if(!active())return;if(document.hidden){signal('visibility_hidden');setHidden(true);}else{signal('visibility_returned');setHidden(false);}});
     document.addEventListener('fullscreenchange',()=>{if(active()&&!document.fullscreenElement)signal('fullscreen_exited');});
+    window.addEventListener('beforeprint',()=>{if(active()){signal('print_attempt');document.body.style.display='none';}});
+    window.addEventListener('afterprint',()=>{document.body.style.display='';});
     window.addEventListener('pagehide',()=>{if(active())signal('page_hidden');});
 
-    setInterval(()=>{
-      if(active()&&channel)channel.postMessage({tabId,assessmentId:testState.assessmentId});
-    },10000);
+    const originalStart=window.startTest;
+    if(typeof originalStart==='function'&&!originalStart.__taGuardWrapped){
+      const wrapped=function(){shuffleQuestions();requestFullscreen();const result=originalStart.apply(this,arguments);setTimeout(watermark,100);return result;};
+      wrapped.__taGuardWrapped=true;window.startTest=wrapped;
+    }
+
+    setInterval(()=>{if(active()&&channel)channel.postMessage({tabId,assessmentId:testState.assessmentId});},10000);
   }
 
   document.addEventListener('DOMContentLoaded',()=>setTimeout(setup,250));
