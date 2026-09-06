@@ -10,11 +10,14 @@
     CONFIG.GOOGLE_SHEETS_API = 'https://script.google.com/macros/s/AKfycbw1_jurj5YOX_uO5Gyxk4X4FCVkhytFrsruTB5y3zpQHS4qy0euIgyjiPkkYLYt9eRf/exec';
     CONFIG.ACCOUNT_API = '';
     CONFIG.QUESTION_BANK_API = '/api/question-bank';
+    CONFIG.ADMIN_URL = '/admin.html';
     CONFIG.FORMSPREE_LINK = 'https://formspree.io/f/xaeydera';
     CONFIG.SAWERIA_LINK = 'https://saweria.co/tamaandrea';
 
     // ACCOUNT_API diisi setelah account.gs dideploy sebagai Web App.
     // Question Bank dibaca melalui Vercel Function agar frontend tidak bergantung
     // pada CORS ContentService Apps Script secara langsung.
+    // ADMIN_URL hanya menunjuk ke halaman masuk admin; otorisasi tetap dilakukan
+    // pada panel Google Apps Script dengan key yang disimpan di Script Properties.
     // Jangan taruh secret atau admin key di file ini karena frontend bersifat publik.
 })();
