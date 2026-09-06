@@ -7,424 +7,119 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        .result-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .result-header {
-            background: var(--primary-color);
-            color: var(--bg-white);
-            padding: 2rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .result-header h1 {
-            color: var(--bg-white);
-            margin-bottom: 0.5rem;
-        }
-
-        .result-id {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 3px;
-            display: inline-block;
-            font-family: monospace;
-            margin-top: 1rem;
-        }
-
-        .result-section {
-            background-color: var(--bg-white);
-            padding: 2rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .result-section h2 {
-            text-align: left;
-            border-bottom: 2px solid var(--secondary-color);
-            padding-bottom: 1rem;
-        }
-
-        .score-profile {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 1.5rem;
-        }
-
-        .score-card {
-            background-color: var(--bg-light);
-            padding: 1.5rem;
-            border-radius: 4px;
-            border-left: 4px solid var(--secondary-color);
-        }
-
-        .score-card h3 {
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        .score-display {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .score-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--secondary-color);
-            min-width: 70px;
-        }
-
-        .score-bar {
-            flex: 1;
-        }
-
-        .score-bar-background {
-            width: 100%;
-            height: 8px;
-            background-color: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .score-bar-fill {
-            height: 100%;
-            background-color: var(--secondary-color);
-            transition: width 0.5s ease;
-        }
-
-        .score-label {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-
-        .interpretation-text {
-            line-height: 1.8;
-            color: var(--text-light);
-            margin-top: 1rem;
-        }
-
-        .exploration-section {
-            background-color: #e8f4f8;
-            border-left: 4px solid var(--secondary-color);
-            padding: 1.5rem;
-            border-radius: 4px;
-            margin-top: 1.5rem;
-        }
-
-        .exploration-section h4 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .exploration-list {
-            list-style: none;
-        }
-
-        .exploration-list li {
-            padding: 0.5rem 0;
-            padding-left: 1.5rem;
-            position: relative;
-        }
-
-        .exploration-list li:before {
-            content: '→';
-            position: absolute;
-            left: 0;
-            color: var(--secondary-color);
-            font-weight: bold;
-        }
-
-        .mbti-section {
-            background-color: #f0f8ff;
-            border: 2px solid var(--secondary-color);
-            border-radius: 4px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .mbti-section h4 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .mbti-input {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .mbti-input input {
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-family: monospace;
-            text-transform: uppercase;
-            font-size: 1.2rem;
-            width: 100px;
-            text-align: center;
-        }
-
-        .mbti-note {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: 1rem;
-            font-style: italic;
-        }
-
-        .notice-box {
-            background-color: #fff3cd;
-            border: 2px solid var(--warning-color);
-            border-radius: 4px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .notice-box h4 {
-            color: var(--warning-color);
-        }
-
-        .action-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .action-button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .action-button.primary {
-            background-color: var(--secondary-color);
-            color: var(--bg-white);
-        }
-
-        .action-button.primary:hover {
-            background-color: #2980b9;
-        }
-
-        .action-button.secondary {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            border: 2px solid var(--border-color);
-        }
-
-        .action-button.secondary:hover {
-            border-color: var(--secondary-color);
-            color: var(--secondary-color);
-        }
-
-        .pdf-content {
-            display: none;
-        }
-
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .pdf-content,
-            .pdf-content * {
-                visibility: visible;
-            }
-        }
-
-        .summary-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .stat-box {
-            background-color: var(--bg-light);
-            padding: 1rem;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--secondary-color);
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: 0.5rem;
-        }
-
-        #qrCodeContainer {
-            text-align: center;
-            margin: 1.5rem 0;
-        }
-
-        #qrCodeContainer img {
-            border: 2px solid var(--border-color);
-            padding: 1rem;
-            border-radius: 4px;
-        }
-
-        .verification-note {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
+        .result-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .result-header { background: var(--primary-color); color: var(--bg-white); padding: 2rem; border-radius: 4px; margin-bottom: 2rem; text-align: center; }
+        .result-header h1 { color: var(--bg-white); margin-bottom: 0.5rem; }
+        .result-id { background-color: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 3px; display: inline-block; font-family: monospace; margin-top: 1rem; }
+        .result-section { background-color: var(--bg-white); padding: 2rem; border-radius: 4px; margin-bottom: 2rem; border: 1px solid var(--border-color); }
+        .result-section h2 { text-align: left; border-bottom: 2px solid var(--secondary-color); padding-bottom: 1rem; }
+        .score-profile { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 2rem; margin-top: 1.5rem; }
+        .score-card { background-color: var(--bg-light); padding: 1.5rem; border-radius: 4px; border-left: 4px solid var(--secondary-color); }
+        .score-card h3 { margin-bottom: 1rem; color: var(--primary-color); }
+        .score-display { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .score-number { font-size: 2.5rem; font-weight: bold; color: var(--secondary-color); min-width: 70px; }
+        .score-bar { flex: 1; }
+        .score-bar-background { width: 100%; height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden; }
+        .score-bar-fill { height: 100%; background-color: var(--secondary-color); transition: width 0.5s ease; }
+        .score-label { font-size: 0.9rem; color: var(--text-light); font-weight: 600; margin-top: 0.5rem; }
+        .interpretation-text { line-height: 1.8; color: var(--text-light); margin-top: 1rem; }
+        .exploration-section { background-color: #e8f4f8; border-left: 4px solid var(--secondary-color); padding: 1.5rem; border-radius: 4px; margin-top: 1.5rem; }
+        .exploration-section h4 { color: var(--primary-color); margin-bottom: 1rem; }
+        .exploration-list { list-style: none; }
+        .exploration-list li { padding: 0.5rem 0; padding-left: 1.5rem; position: relative; }
+        .exploration-list li:before { content: '→'; position: absolute; left: 0; color: var(--secondary-color); font-weight: bold; }
+        .mbti-section { background-color: #f0f8ff; border: 2px solid var(--secondary-color); border-radius: 4px; padding: 1.5rem; margin-top: 1.5rem; }
+        .mbti-section h4 { color: var(--primary-color); margin-bottom: 1rem; }
+        .mbti-input { display: flex; gap: 1rem; align-items: center; }
+        .mbti-input input { padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; text-transform: uppercase; font-size: 1.2rem; width: 100px; text-align: center; }
+        .mbti-note { font-size: 0.85rem; color: var(--text-light); margin-top: 1rem; font-style: italic; }
+        .notice-box { background-color: #fff3cd; border: 2px solid var(--warning-color); border-radius: 4px; padding: 1.5rem; margin-top: 2rem; }
+        .notice-box h4 { color: var(--warning-color); }
+        .action-buttons { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 1rem; margin-top: 2rem; }
+        .action-button { padding: 12px 24px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; transition: all 0.3s ease; display: inline-block; }
+        .action-button.primary { background-color: var(--secondary-color); color: var(--bg-white); }
+        .action-button.primary:hover { background-color: #2980b9; }
+        .action-button.secondary { background-color: var(--bg-light); color: var(--text-dark); border: 2px solid var(--border-color); }
+        .action-button.secondary:hover { border-color: var(--secondary-color); color: var(--secondary-color); }
+        .pdf-content { display: none; }
+        @media print { body * { visibility: hidden; } .pdf-content, .pdf-content * { visibility: visible; } }
+        .summary-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .stat-box { background-color: var(--bg-light); padding: 1rem; border-radius: 4px; text-align: center; }
+        .stat-number { font-size: 1.8rem; font-weight: bold; color: var(--secondary-color); }
+        .stat-label { font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem; }
+        #qrCodeContainer { text-align: center; margin: 1.5rem 0; }
+        #qrCodeContainer img { border: 2px solid var(--border-color); padding: 1rem; border-radius: 4px; }
+        .verification-note { text-align: center; margin-top: 1rem; font-size: 0.9rem; color: var(--text-light); }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <strong>TA</strong> ASSESS
-                <span class="subtitle">Platform Penerbit Laporan</span>
-            </div>
-            <div class="nav-links">
-                <a href="index.html" class="nav-link">← Kembali ke Beranda</a>
-            </div>
+            <div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Platform Penerbit Laporan</span></div>
+            <div class="nav-links"><a href="index.html" class="nav-link">← Kembali ke Beranda</a></div>
         </div>
     </nav>
 
-    <!-- Result Container -->
     <div class="result-container">
-        <!-- Header -->
         <div class="result-header">
             <h1>Hasil Asesmen Anda</h1>
             <p id="assessmentTitle">Loading...</p>
-            <div class="result-id">
-                ID: <span id="resultId">-</span>
-            </div>
+            <div class="result-id">ID: <span id="resultId">-</span></div>
         </div>
 
-        <!-- Summary Stats -->
         <div class="result-section">
             <h2>Ringkasan</h2>
             <div class="summary-stats">
-                <div class="stat-box">
-                    <div class="stat-number" id="completionTime">-</div>
-                    <div class="stat-label">Waktu Pengerjaan</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number" id="questionsAnswered">-</div>
-                    <div class="stat-label">Pertanyaan Terjawab</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number" id="assessmentDate">-</div>
-                    <div class="stat-label">Tanggal Asesmen</div>
-                </div>
+                <div class="stat-box"><div class="stat-number" id="completionTime">-</div><div class="stat-label">Waktu Pengerjaan</div></div>
+                <div class="stat-box"><div class="stat-number" id="questionsAnswered">-</div><div class="stat-label">Pertanyaan Terjawab</div></div>
+                <div class="stat-box"><div class="stat-number" id="assessmentDate">-</div><div class="stat-label">Tanggal Asesmen</div></div>
             </div>
         </div>
 
-        <!-- Score Profile -->
-        <div class="result-section">
-            <h2>Profil Skor</h2>
-            <div class="score-profile" id="scoreProfile">
-                <!-- Will be populated by JavaScript -->
-            </div>
-        </div>
+        <div class="result-section"><h2>Profil Skor</h2><div class="score-profile" id="scoreProfile"></div></div>
 
-        <!-- Interpretation Section -->
         <div class="result-section">
             <h2>Interpretasi Hasil</h2>
-            <div id="interpretationContent">
-                <!-- Will be populated by JavaScript -->
-            </div>
-
-            <div class="exploration-section">
-                <h4>Area yang Dapat Dieksplorasi</h4>
-                <ul class="exploration-list" id="explorationList">
-                    <!-- Will be populated by JavaScript -->
-                </ul>
-            </div>
+            <div id="interpretationContent"></div>
+            <div class="exploration-section"><h4>Area yang Dapat Dieksplorasi</h4><ul class="exploration-list" id="explorationList"></ul></div>
         </div>
 
-        <!-- Smart Insight -->
-        <div class="result-section">
-            <h2>Smart Insight</h2>
-            <div id="insightContent">
-                <!-- Will be populated by JavaScript -->
-            </div>
-        </div>
+        <div class="result-section"><h2>Smart Insight</h2><div id="insightContent"></div></div>
 
-        <!-- MBTI Section (Optional) -->
         <div class="result-section">
             <h2>MBTI (Opsional)</h2>
             <p>Jika Anda telah menjalani asesmen MBTI, Anda dapat memasukkan hasilnya di sini untuk referensi perbandingan:</p>
             <div class="mbti-section">
-                <div class="mbti-input">
-                    <label for="mbtiInput">MBTI Result:</label>
-                    <input type="text" id="mbtiInput" maxlength="4" placeholder="Contoh: INTP">
-                    <button class="action-button primary" style="padding: 8px 16px;" onclick="saveMBTI()">Simpan</button>
-                </div>
-                <div class="mbti-note">
-                    Hasil MBTI yang Anda masukkan adalah informasi pengguna dan bukan hasil administrasi MBTI resmi dari TA Assess.
-                </div>
+                <div class="mbti-input"><label for="mbtiInput">MBTI Result:</label><input type="text" id="mbtiInput" maxlength="4" placeholder="Contoh: INTP"><button class="action-button primary" style="padding: 8px 16px;" onclick="saveMBTI()">Simpan</button></div>
+                <div class="mbti-note">Hasil MBTI yang Anda masukkan adalah informasi pengguna dan bukan hasil administrasi MBTI resmi dari TA Assess.</div>
             </div>
         </div>
 
-        <!-- Important Notice -->
         <div class="notice-box">
             <h4>⚠️ Penting</h4>
             <p>Hasil ini merupakan hasil self-assessment pada platform TA Assess dan <strong>bukan diagnosis psikologis</strong>. Hasil ini tidak dimaksudkan sebagai pengganti pemeriksaan atau konsultasi dengan Psikolog.</p>
             <p>Penerimaan laporan untuk kebutuhan sekolah, pekerjaan, beasiswa, atau institusi lain bergantung pada kebijakan pihak yang meminta.</p>
         </div>
 
-        <!-- Action Buttons -->
         <div class="action-buttons">
-            <button class="action-button primary" onclick="downloadPDF()">
-                📥 Download PDF
-            </button>
-            <a href="verify.html" class="action-button secondary" id="verifyLink">
-                ✓ Verifikasi Laporan
-            </a>
-            <a href="index.html" class="action-button secondary">
-                ← Kembali ke Beranda
-            </a>
+            <button class="action-button primary" onclick="downloadPDF()">📥 Download PDF</button>
+            <a href="verify.html" class="action-button secondary" id="verifyLink">✓ Verifikasi Laporan</a>
+            <a href="index.html" class="action-button secondary">← Kembali ke Beranda</a>
         </div>
 
-        <!-- QR Code for Verification -->
         <div class="result-section" style="text-align: center; margin-top: 3rem;">
             <h3>Verifikasi Dokumen</h3>
             <p>Scan QR Code di bawah untuk memverifikasi keaslian laporan ini:</p>
-            <div id="qrCodeContainer">
-                <!-- QR will be generated by JavaScript -->
-            </div>
-            <div class="verification-note">
-                <strong>Verification URL:</strong><br>
-                <span id="verificationUrl">-</span>
-            </div>
+            <div id="qrCodeContainer"></div>
+            <div class="verification-note"><strong>Verification URL:</strong><br><span id="verificationUrl">-</span></div>
         </div>
     </div>
 
-    <!-- Hidden PDF Content -->
-    <div id="pdfContent" class="pdf-content">
-        <!-- Will be populated for PDF generation -->
-    </div>
+    <div id="pdfContent" class="pdf-content"></div>
 
-    <!-- Scripts -->
     <script src="js/assessments-data.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/runtime-config.js"></script>
     <script src="js/recommendation-engine.js"></script>
     <script src="js/insight-engine.js"></script>
     <script src="js/result-engine.js"></script>
