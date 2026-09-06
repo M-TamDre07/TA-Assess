@@ -29,7 +29,10 @@ const runtimeConfig=read('js/runtime-config.js');
 const forbiddenSecrets=[/sk-[A-Za-z0-9_-]{20,}/,/gh[pousr]_[A-Za-z0-9_]{20,}/,/AIza[0-9A-Za-z_-]{20,}/,/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i,/xox[baprs]-[A-Za-z0-9-]{10,}/];
 forbiddenSecrets.forEach(pattern=>assert(!pattern.test(runtimeConfig),`runtime-config.js terdeteksi pola secret: ${pattern}`));
 assert(runtimeConfig.includes('CONFIG.GOOGLE_SHEETS_API'),'runtime-config.js tidak mendefinisikan CONFIG.GOOGLE_SHEETS_API');
-assert(runtimeConfig.includes('AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx'),'runtime-config.js belum memakai endpoint Apps Script terbaru');
+const latestBackend='https://script.google.com/macros/s/AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx/exec';
+const previousBackend='https://script.google.com/macros/s/AKfycbw1_jurj5YOX_uO5Gyxk4X4FCVkhytFrsruTB5y3zpQHS4qy0euIgyjiPkkYLYt9eRf/exec';
+assert(runtimeConfig.includes(latestBackend),'runtime-config.js belum memakai endpoint Apps Script terbaru');
+assert(!runtimeConfig.includes(previousBackend),'runtime-config.js masih menyimpan endpoint Apps Script lama');
 assert(runtimeConfig.includes('CONFIG.FORMSPREE_LINK'),'runtime-config.js tidak mendefinisikan CONFIG.FORMSPREE_LINK');
 assert(runtimeConfig.includes('CONFIG.SAWERIA_LINK'),'runtime-config.js tidak mendefinisikan CONFIG.SAWERIA_LINK');
 assert(runtimeConfig.includes('CONFIG.ASSESSMENT_SECURITY_API'),'runtime-config.js tidak mendefinisikan security endpoint');
@@ -46,6 +49,7 @@ const test=read('test.html');
 assert(test.includes('js/assessment-calibration.js'),'test.html belum memuat assessment calibration');
 assert(test.includes('js/security-hardening.js'),'test.html belum memuat security hardening');
 assert(test.includes('js/client-diagnostics.js'),'test.html belum memuat client diagnostics');
+assert(test.includes('js/personality-fallback-30.js'),'test.html belum memuat fallback personality 30 item');
 
 const backend=read('google-apps-script/code.gs');
 assert(backend.includes('TA_SERVER_SHARED_SECRET'),'backend belum memiliki shared secret submission');
@@ -66,16 +70,25 @@ assert(account.includes("if(sheetName==='Sessions')"),'account backend belum mer
 assert(!account.includes("headers=values[0]||[],rows=values.slice(1).reverse().slice(0,limit)"),'account backend masih mengembalikan seluruh field sheet secara generik');
 
 const health=read('api/system-health.js');
+assert(health.includes(latestBackend),'health endpoint belum menunjuk backend hasil terbaru');
+assert(health.includes('AKfycbyT0jepU01BljPXNgMyUaAkgQ5U-j8X5n_kjh3pCosMhOv6hUAUA6uKETaAn7OlXTK9'),'health endpoint belum menunjuk Question Bank yang benar');
 assert(health.includes('TA_ASSESS_SERVER_SECRET'),'health endpoint belum memeriksa server secret');
 assert(health.includes('questionBank'),'health endpoint belum memeriksa Question Bank');
 assert(health.includes('overall'),'health endpoint belum memiliki status keseluruhan');
 
 const session=read('api/assessment-session.js');
+assert(session.includes(latestBackend),'assessment session gateway masih menunjuk backend lama');
+assert(!session.includes(previousBackend),'assessment session gateway masih menyimpan endpoint backend lama');
 assert(session.includes('uaHash'),'assessment session belum memiliki browser fingerprint binding');
 assert(session.includes('429'),'assessment session belum memiliki rate limit');
 const submit=read('api/assessment-submit.js');
+assert(submit.includes(latestBackend),'assessment submit gateway masih menunjuk backend lama');
+assert(!submit.includes(previousBackend),'assessment submit gateway masih menyimpan endpoint backend lama');
 assert(submit.includes('currentUaHash'),'assessment submit belum memeriksa browser fingerprint');
 assert(submit.includes('MAX_SUBMITS_PER_WINDOW'),'assessment submit belum memiliki rate limit');
+const event=read('api/assessment-event.js');
+assert(event.includes(latestBackend),'assessment event gateway masih menunjuk backend lama');
+assert(!event.includes(previousBackend),'assessment event gateway masih menyimpan endpoint backend lama');
 
 const vercel=read('vercel.json');
 assert(vercel.includes('"/admin"'),'vercel.json belum menyediakan route /admin');
@@ -105,4 +118,4 @@ assert(!docs.includes('docs/PRIVACY.md">Baca sumber'),'docs.html masih melempar 
 const codeowners=read('CODEOWNERS');
 assert(codeowners.includes('@M-TamDre07'),'CODEOWNERS belum menunjuk maintainer');
 
-if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, docs UI, visible asset, latest backend endpoint, health, maintenance recovery, admin redaction, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
+if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, docs UI, visible asset, backend endpoint consistency, health, maintenance recovery, admin redaction, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
