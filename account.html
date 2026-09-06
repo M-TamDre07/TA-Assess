@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Akun — TA Assess</title>
+  <title>Akun | TA Assess</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
     .account-page{min-height:100vh;padding:110px 20px 60px;background:var(--bg,#f5f7fa)}
@@ -15,8 +15,9 @@
     .account-message,.dashboard-message{margin:14px 0;padding:12px;border-radius:10px;min-height:20px}.account-message:empty,.dashboard-message:empty{display:none}.account-message.error,.dashboard-message.error{background:#fff0f0;color:#9b2226}.account-message.success{background:#edf9f0;color:#246b36}.account-message.warning{background:#fff8e6;color:#805b00}.account-message.loading,.dashboard-message.loading{background:#eef5ff;color:#245a91}
     .account-note{font-size:.9rem;color:#687684;line-height:1.6}.name-hint{font-size:.85rem;color:#687684;margin-top:6px}.account-security{grid-column:1/-1}.account-security ul{line-height:1.8}
     .history-card{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #e2e7ec;border-radius:12px;padding:13px;margin:10px 0}.history-meta{font-size:.8rem;color:#687684;margin-top:5px;word-break:break-word}.history-button{width:auto!important;margin:0!important;padding:9px 12px!important;background:#3498db;color:#fff;white-space:nowrap}.empty-history{padding:16px;border-radius:10px;background:#f6f8fa;color:#687684;line-height:1.6}
+    .profile-link{display:none;text-decoration:none;text-align:center;margin-top:12px;padding:11px 14px;border-radius:10px;background:#2d8f67;color:#fff;font-weight:700}.profile-link.visible{display:block}
     .admin-link{display:none}.admin-link.visible{display:block}
-    @media(max-width:760px){.account-shell{grid-template-columns:1fr}.account-security{grid-column:auto}.history-card{align-items:flex-start;flex-direction:column}.history-button{width:100%!important}}
+    @media(max-width:760px){.account-shell{grid-template-columns:1fr}.account-security{grid-column:auto}.history-card{align-items:flex-start;flex-direction:column}.history-button{width:100%!important}.profile-link.visible{width:100%;box-sizing:border-box}}
   </style>
 </head>
 <body>
@@ -36,12 +37,13 @@
     </section>
 
     <section class="account-card" id="loggedInBox" hidden>
-      <h1>Halo, <span id="loggedInName"></span></h1><p class="account-note">Akun aktif pada sesi browser ini.</p><button id="logoutButton" type="button">Keluar</button>
+      <h1>Halo, <span id="loggedInName"></span></h1><p class="account-note">Akun aktif pada sesi browser ini. Hasil yang selesai dengan akun dapat disimpan ke riwayat.</p><button id="logoutButton" type="button">Keluar</button>
       <p class="account-note">Sesi memiliki masa berlaku dan dapat berakhir otomatis setelah tidak aktif.</p>
+      <a id="completeProfileLink" class="profile-link" href="account-insights.html">Buka Profil Lengkap</a>
       <a id="adminShortcut" class="admin-link" href="javascript:void(0)">Panel pengelola</a>
     </section>
 
-    <section class="account-card"><h2>Hasil Saya</h2><p id="reportCount" class="account-note">Memuat riwayat…</p><div id="dashboardMessage" class="dashboard-message" aria-live="polite"></div><div id="reportHistory"></div></section>
+    <section class="account-card"><h2>Hasil Saya</h2><p id="reportCount" class="account-note">Memuat riwayat…</p><div id="dashboardMessage" class="dashboard-message" aria-live="polite"></div><div id="reportHistory"></div><p id="profileHint" class="account-note">Selesaikan kepribadian, minat karier, dan preferensi belajar untuk membuka Profil Lengkap.</p></section>
 
     <section class="account-card account-security"><h2>Keamanan dan Privasi</h2><ul><li>Password tidak disimpan dalam bentuk plaintext.</li><li>Server menyimpan salt dan hasil derivasi hash, bukan password.</li><li>Token sesi disimpan sebagai hash di backend.</li><li>Percobaan login gagal berulang memicu lock sementara.</li><li>Riwayat akun hanya menyimpan ringkasan hasil, bukan jawaban mentah.</li><li>Fitur mengenali nama menggunakan nama tampilan akun, bukan identifikasi biometrik.</li></ul></section>
   </div></main>
@@ -51,11 +53,16 @@
   <script src="js/account-dashboard.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function(){
-      const button=document.getElementById('adminShortcut');
+      const admin=document.getElementById('adminShortcut');
+      const profile=document.getElementById('completeProfileLink');
       try{
         const user=JSON.parse(sessionStorage.getItem('ta_assess_user')||'null');
-        if(user && user.role==='ADMIN' && typeof CONFIG!=='undefined' && CONFIG.ADMIN_URL){button.classList.add('visible');button.href=CONFIG.ADMIN_URL;button.target='_blank';button.rel='noopener noreferrer';}
+        if(user && user.role==='ADMIN' && typeof CONFIG!=='undefined' && CONFIG.ADMIN_URL){admin.classList.add('visible');admin.href=CONFIG.ADMIN_URL;admin.target='_blank';admin.rel='noopener noreferrer';}
       }catch(_){ }
+      window.TA_ACCOUNT_PROFILE={showIfComplete:function(ids){
+        const needed=['PERSONALITY-01','CAREER-01','LEARNING-01'];
+        if(needed.every(id=>ids.includes(id))){profile.classList.add('visible');}
+      }};
     });
   </script>
 </body>
