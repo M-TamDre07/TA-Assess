@@ -6,7 +6,8 @@
 (function () {
     if (typeof CONFIG === 'undefined') return;
 
-    CONFIG.GOOGLE_SHEETS_API = 'https://script.google.com/macros/s/AKfycbw1_jurj5YOX_uO5Gyxk4X4FCVkhytFrsruTB5y3zpQHS4qy0euIgyjiPkkYLYt9eRf/exec';
+    // Backend hasil terbaru
+    CONFIG.GOOGLE_SHEETS_API = 'https://script.google.com/macros/s/AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx/exec';
     CONFIG.ACCOUNT_API = '';
     CONFIG.QUESTION_BANK_API = '/api/question-bank';
     CONFIG.ASSESSMENT_SECURITY_API = '/api/assessment-session';
