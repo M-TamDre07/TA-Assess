@@ -1,0 +1,15 @@
+/* TA ASSESS — role-protected admin dashboard */
+(function(){
+'use strict';
+const API=(typeof CONFIG!=='undefined'&&CONFIG.ACCOUNT_API)||'';const TOKEN_KEY='ta_assess_session';const $=id=>document.getElementById(id);
+function token(){return sessionStorage.getItem(TOKEN_KEY)||'';}
+async function req(p){if(!API||!token())throw new Error('Account API belum dikonfigurasi atau sesi admin belum tersedia.');const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...p,token:token()})});const d=await r.json();if(!d.success)throw new Error(d.error||'Permintaan gagal.');return d;}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+async function boot(){try{const me=await req({action:'me'});if(me.user.role!=='ADMIN')throw new Error('Akses admin ditolak.');$('adminName').textContent=me.user.displayName;await overview();await listSheet('User Reports');}catch(e){$('message').textContent=e.message;$('message').className='error';}}
+async function overview(){const d=await req({action:'adminOverview'});$('counts').innerHTML=Object.entries(d.counts).map(([k,v])=>`<div class="metric"><strong>${esc(v)}</strong><span>${esc(k)}</span></div>`).join('');}
+async function listSheet(sheet){const d=await req({action:'adminList',sheet,limit:100});const wrap=$('tableWrap');if(!d.rows.length){wrap.innerHTML='<p class="muted">Tidak ada data.</p>';return;}wrap.innerHTML=`<div class="table-scroll"><table><thead><tr>${d.headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${d.rows.map(row=>`<tr>${row.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;}
+async function deleteReport(){const id=$('reportId').value.trim();if(!id)return;$('message').textContent='Menghapus…';try{await req({action:'adminDeleteReport',reportId:id});$('message').textContent='Laporan dihapus dari data terkait.';await overview();await listSheet('User Reports');}catch(e){$('message').textContent=e.message;$('message').className='error';}}
+async function deleteUser(){const id=$('userId').value.trim();if(!id)return;if(!confirm('Hapus akun dan data laporan terkait?'))return;try{await req({action:'adminDeleteUser',userId:id});$('message').textContent='Akun dan data terkait dihapus.';await overview();await listSheet('Accounts');}catch(e){$('message').textContent=e.message;$('message').className='error';}}
+async function setStatus(status){const id=$('userId').value.trim();if(!id)return;try{await req({action:'adminSetUserStatus',userId:id,status});$('message').textContent='Status akun diperbarui.';await listSheet('Accounts');}catch(e){$('message').textContent=e.message;$('message').className='error';}}
+document.addEventListener('DOMContentLoaded',()=>{boot();$('sheetSelect').addEventListener('change',e=>listSheet(e.target.value));$('deleteReport').addEventListener('click',deleteReport);$('deleteUser').addEventListener('click',deleteUser);$('suspendUser').addEventListener('click',()=>setStatus('SUSPENDED'));$('activateUser').addEventListener('click',()=>setStatus('ACTIVE'));});
+})();
