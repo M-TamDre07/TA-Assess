@@ -12,6 +12,7 @@
     CONFIG.ASSESSMENT_SECURITY_API = '/api/assessment-session';
     CONFIG.ASSESSMENT_SUBMIT_API = '/api/assessment-submit';
     CONFIG.ASSESSMENT_EVENT_API = '/api/assessment-event';
+    CONFIG.SYSTEM_HEALTH_API = '/api/system-health';
     CONFIG.ADMIN_URL = '/admin.html';
     CONFIG.FORMSPREE_LINK = 'https://formspree.io/f/xaeydera';
     CONFIG.SAWERIA_LINK = 'https://saweria.co/tamaandrea';
