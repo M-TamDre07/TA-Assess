@@ -1,5 +1,4 @@
 /* TA ASSESS | Assessment preflight calibration
- * Purpose: verify browser capabilities before an assessment starts.
  * Camera processing is local-only. No frame or biometric template is uploaded.
  * This is an integrity aid, not identity verification or proof of cheating.
  */
@@ -9,21 +8,10 @@
     const STATE_KEY = 'ta_assess_calibration_v1';
     const CAMERA_REQUIRED = true;
     const FACE_CHECK_OPTIONAL = true;
-    let state = {
-        passed: false,
-        cameraReady: false,
-        faceCheck: 'not-run',
-        automation: false,
-        checks: {}
-    };
+    let state = { passed:false, cameraReady:false, faceCheck:'not-run', automation:false, checks:{} };
     let stream = null;
 
-    function signal(name, meta) {
-        if (typeof window.registerIntegritySignal === 'function') {
-            window.registerIntegritySignal(name, meta || {});
-        }
-    }
-
+    function signal(name, meta) { if (typeof window.registerIntegritySignal === 'function') window.registerIntegritySignal(name, meta || {}); }
     function qs(id) { return document.getElementById(id); }
 
     function ensurePanel() {
@@ -31,232 +19,139 @@
         const consent = qs('consentScreen');
         const section = consent && consent.querySelector('.consent-section');
         if (!section) return null;
-
         const panel = document.createElement('div');
         panel.id = 'taCalibrationPanel';
         panel.setAttribute('role', 'region');
         panel.setAttribute('aria-labelledby', 'taCalibrationTitle');
         panel.style.cssText = 'margin-bottom:18px;padding:16px;border:1px solid var(--border-color,#dce3ea);border-radius:12px;background:#f8fafc;';
         panel.innerHTML = `
-            <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
-              <div>
-                <h3 id="taCalibrationTitle" style="margin:0 0 6px;">Pemeriksaan Sistem</h3>
-                <p id="taCalibrationStatus" style="margin:0;color:var(--text-light,#667684);line-height:1.5;">Sistem sedang memeriksa kesiapan asesmen.</p>
-              </div>
-              <span id="taCalibrationBadge" style="display:inline-block;padding:5px 9px;border-radius:999px;background:#eef2f5;color:#334; font-size:.8rem;">Belum siap</span>
-            </div>
-            <div id="taCalibrationChecks" style="display:grid;gap:7px;margin:14px 0;"></div>
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-              <label style="display:flex;gap:8px;align-items:flex-start;line-height:1.45;flex:1;min-width:240px;">
-                <input id="taCameraConsent" type="checkbox" style="margin-top:4px;">
-                <span>Saya memberi izin kamera digunakan untuk pemeriksaan kesiapan secara lokal. Gambar kamera tidak direkam, disimpan, atau dikirim ke server.</span>
-              </label>
-              <button id="taCalibrationButton" type="button" disabled style="padding:10px 14px;border:0;border-radius:8px;background:#3498db;color:#fff;font-weight:700;cursor:pointer;">Jalankan Kalibrasi</button>
-            </div>
-            <div id="taCameraPreviewWrap" hidden style="margin-top:12px;text-align:center;">
-              <video id="taCameraPreview" autoplay muted playsinline width="240" height="180" style="max-width:100%;border-radius:10px;background:#111;object-fit:cover;"></video>
-              <div id="taFaceStatus" style="font-size:.82rem;color:var(--text-light,#667684);margin-top:5px;"></div>
-            </div>
-            <div id="taCalibrationError" role="alert" style="display:none;margin-top:10px;padding:10px 12px;border-radius:8px;background:#fff3cd;color:#6f5410;"></div>
-        `;
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div><h3 id="taCalibrationTitle" style="margin:0 0 6px;">Pemeriksaan Sistem</h3><p id="taCalibrationStatus" style="margin:0;color:var(--text-light,#667684);line-height:1.5;">Sistem sedang memeriksa kesiapan asesmen.</p></div>
+            <span id="taCalibrationBadge" style="display:inline-block;padding:5px 9px;border-radius:999px;background:#eef2f5;color:#334;font-size:.8rem;">Belum siap</span>
+          </div>
+          <div id="taCalibrationChecks" style="display:grid;gap:7px;margin:14px 0;"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <label style="display:flex;gap:8px;align-items:flex-start;line-height:1.45;flex:1;min-width:240px;"><input id="taCameraConsent" type="checkbox" style="margin-top:4px;"><span>Saya memberi izin kamera digunakan untuk pemeriksaan kesiapan secara lokal. Gambar kamera tidak direkam, disimpan, atau dikirim ke server.</span></label>
+            <button id="taCalibrationButton" type="button" disabled style="padding:10px 14px;border:0;border-radius:8px;background:#3498db;color:#fff;font-weight:700;cursor:pointer;">Jalankan Kalibrasi</button>
+          </div>
+          <div id="taCameraPreviewWrap" hidden style="margin-top:12px;text-align:center;"><video id="taCameraPreview" autoplay muted playsinline width="240" height="180" style="max-width:100%;border-radius:10px;background:#111;object-fit:cover;"></video><div id="taFaceStatus" style="font-size:.82rem;color:var(--text-light,#667684);margin-top:5px;"></div></div>
+          <div id="taCalibrationError" role="alert" style="display:none;margin-top:10px;padding:10px 12px;border-radius:8px;background:#fff3cd;color:#6f5410;"></div>`;
         section.insertBefore(panel, section.firstChild);
         return panel;
     }
 
     function setCheck(name, ok, detail) {
         state.checks[name] = !!ok;
-        const wrap = qs('taCalibrationChecks');
-        if (!wrap) return;
+        const wrap = qs('taCalibrationChecks'); if (!wrap) return;
         let item = wrap.querySelector(`[data-check="${name}"]`);
-        if (!item) {
-            item = document.createElement('div');
-            item.dataset.check = name;
-            item.style.cssText = 'display:flex;gap:8px;align-items:flex-start;font-size:.88rem;line-height:1.45;';
-            wrap.appendChild(item);
-        }
+        if (!item) { item = document.createElement('div'); item.dataset.check=name; item.style.cssText='display:flex;gap:8px;align-items:flex-start;font-size:.88rem;line-height:1.45;'; wrap.appendChild(item); }
         item.innerHTML = `<span aria-hidden="true">${ok ? '✓' : '•'}</span><span><strong>${detail || name}</strong></span>`;
     }
-
-    function showError(message) {
-        const el = qs('taCalibrationError');
-        if (!el) return;
-        el.textContent = message;
-        el.style.display = 'block';
-    }
-
-    function clearError() {
-        const el = qs('taCalibrationError');
-        if (el) el.style.display = 'none';
-    }
-
+    function showError(message) { const el=qs('taCalibrationError'); if(el){el.textContent=message;el.style.display='block';} }
+    function clearError() { const el=qs('taCalibrationError'); if(el)el.style.display='none'; }
     function updateStatus(text, ready) {
-        const status = qs('taCalibrationStatus');
-        const badge = qs('taCalibrationBadge');
-        if (status) status.textContent = text;
-        if (badge) {
-            badge.textContent = ready ? 'Siap' : 'Belum siap';
-            badge.style.background = ready ? '#e9f7ef' : '#eef2f5';
-            badge.style.color = ready ? '#24613e' : '#334';
-        }
+        const status=qs('taCalibrationStatus'), badge=qs('taCalibrationBadge');
+        if(status)status.textContent=text;
+        if(badge){badge.textContent=ready?'Siap':'Belum siap';badge.style.background=ready?'#e9f7ef':'#eef2f5';badge.style.color=ready?'#24613e':'#334';}
     }
 
     function basicChecks() {
-        const secure = window.isSecureContext === true || location.hostname === 'localhost';
-        const storage = (() => { try { const k='__ta_cal__'; sessionStorage.setItem(k,'1'); sessionStorage.removeItem(k); return true; } catch (_) { return false; } })();
-        const cryptoOk = !!(window.crypto && window.crypto.getRandomValues && window.crypto.subtle);
-        const fetchOk = typeof window.fetch === 'function';
-        const fullscreenOk = !!document.documentElement.requestFullscreen;
-        const mediaOk = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-        const webdriver = navigator.webdriver === true;
-        const ua = String(navigator.userAgent || '').toLowerCase();
-        const automationUA = /(headless|phantomjs|selenium|playwright|puppeteer|webdriver|electron)/i.test(ua);
+        const secure=window.isSecureContext===true||location.hostname==='localhost';
+        const storage=(()=>{try{const k='__ta_cal__';sessionStorage.setItem(k,'1');sessionStorage.removeItem(k);return true;}catch(_){return false;}})();
+        const cryptoOk=!!(window.crypto&&window.crypto.getRandomValues&&window.crypto.subtle);
+        const fetchOk=typeof window.fetch==='function';
+        const fullscreenOk=!!document.documentElement.requestFullscreen;
+        const mediaOk=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+        const webdriver=navigator.webdriver===true;
+        const ua=String(navigator.userAgent||'').toLowerCase();
+        const automationUA=/(headless|phantomjs|selenium|playwright|puppeteer|webdriver|electron)/i.test(ua);
+        setCheck('secure',secure,secure?'Konteks aman tersedia':'Konteks HTTPS diperlukan');
+        setCheck('storage',storage,storage?'Penyimpanan sesi tersedia':'Penyimpanan sesi tidak tersedia');
+        setCheck('crypto',cryptoOk,cryptoOk?'Web Crypto tersedia':'Web Crypto tidak tersedia');
+        setCheck('fetch',fetchOk,fetchOk?'Komunikasi jaringan tersedia':'Fetch API tidak tersedia');
+        setCheck('fullscreen',fullscreenOk,fullscreenOk?'Fullscreen tersedia':'Fullscreen tidak didukung');
+        setCheck('media',mediaOk,mediaOk?'Akses kamera tersedia':'Browser tidak menyediakan API kamera');
+        setCheck('automation',!webdriver&&!automationUA,!webdriver&&!automationUA?'Tidak ada indikator otomasi browser yang terdeteksi':'Indikator otomasi browser terdeteksi');
+        state.automation=webdriver||automationUA;
+        return {secure,storage,cryptoOk,fetchOk,fullscreenOk,mediaOk,automation:state.automation};
+    }
 
-        setCheck('secure', secure, secure ? 'Konteks aman tersedia' : 'Konteks HTTPS diperlukan');
-        setCheck('storage', storage, storage ? 'Penyimpanan sesi tersedia' : 'Penyimpanan sesi tidak tersedia');
-        setCheck('crypto', cryptoOk, cryptoOk ? 'Web Crypto tersedia' : 'Web Crypto tidak tersedia');
-        setCheck('fetch', fetchOk, fetchOk ? 'Komunikasi jaringan tersedia' : 'Fetch API tidak tersedia');
-        setCheck('fullscreen', fullscreenOk, fullscreenOk ? 'Fullscreen tersedia' : 'Fullscreen tidak didukung');
-        setCheck('media', mediaOk, mediaOk ? 'Akses kamera tersedia' : 'Browser tidak menyediakan API kamera');
-        setCheck('automation', !webdriver && !automationUA, !webdriver && !automationUA ? 'Tidak ada indikator otomasi browser yang terdeteksi' : 'Indikator otomasi browser terdeteksi');
-
-        state.automation = webdriver || automationUA;
-        return { secure, storage, cryptoOk, fetchOk, fullscreenOk, mediaOk, automation: state.automation };
+    function basicReady(checks) {
+        return ['secure','storage','cryptoOk','fetchOk','mediaOk'].every(k=>checks[k]) && !checks.automation;
     }
 
     async function detectFace(video) {
-        if (!FACE_CHECK_OPTIONAL || typeof window.FaceDetector !== 'function') {
-            state.faceCheck = 'unsupported';
-            const faceStatus = qs('taFaceStatus');
-            if (faceStatus) faceStatus.textContent = 'Deteksi wajah lokal tidak tersedia di browser ini. Pemeriksaan kamera tetap dilakukan tanpa menyimpan gambar.';
+        if(!FACE_CHECK_OPTIONAL||typeof window.FaceDetector!=='function'){
+            state.faceCheck='unsupported';
+            const faceStatus=qs('taFaceStatus');
+            if(faceStatus)faceStatus.textContent='Deteksi wajah lokal tidak tersedia di browser ini. Kamera tetap diuji tanpa menyimpan gambar.';
             signal('camera_face_check_unavailable');
             return true;
         }
-
-        try {
-            const detector = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
-            await new Promise(resolve => setTimeout(resolve, 900));
-            const faces = await detector.detect(video);
-            if (faces.length !== 1) {
-                state.faceCheck = 'failed';
-                const faceStatus = qs('taFaceStatus');
-                if (faceStatus) faceStatus.textContent = 'Wajah belum terdeteksi dengan jelas. Pastikan wajah berada di area kamera.';
-                signal('camera_face_check_failed', { count: faces.length });
-                return false;
-            }
-            const box = faces[0].boundingBox;
-            const centerX = box.x + box.width / 2;
-            const centerY = box.y + box.height / 2;
-            const vw = video.videoWidth || 1;
-            const vh = video.videoHeight || 1;
-            const centered = centerX > vw * 0.2 && centerX < vw * 0.8 && centerY > vh * 0.15 && centerY < vh * 0.85;
-            state.faceCheck = centered ? 'passed' : 'off-center';
-            const faceStatus = qs('taFaceStatus');
-            if (faceStatus) faceStatus.textContent = centered ? 'Wajah terdeteksi pada area kamera.' : 'Wajah terdeteksi tetapi posisinya terlalu jauh dari area tengah.';
-            signal(centered ? 'camera_face_check_passed' : 'camera_face_check_off_center');
+        try{
+            const detector=new window.FaceDetector({fastMode:true,maxDetectedFaces:1});
+            await new Promise(resolve=>setTimeout(resolve,900));
+            const faces=await detector.detect(video);
+            if(faces.length!==1){state.faceCheck='failed';const el=qs('taFaceStatus');if(el)el.textContent='Wajah belum terdeteksi dengan jelas. Pastikan wajah berada di area kamera.';signal('camera_face_check_failed',{count:faces.length});return false;}
+            const box=faces[0].boundingBox;
+            const centerX=box.x+box.width/2, centerY=box.y+box.height/2, vw=video.videoWidth||1, vh=video.videoHeight||1;
+            const centered=centerX>vw*.2&&centerX<vw*.8&&centerY>vh*.15&&centerY<vh*.85;
+            state.faceCheck=centered?'passed':'off-center';
+            const el=qs('taFaceStatus');if(el)el.textContent=centered?'Wajah terdeteksi pada area kamera.':'Wajah terdeteksi tetapi posisinya terlalu jauh dari area tengah.';
+            signal(centered?'camera_face_check_passed':'camera_face_check_off_center');
             return centered;
-        } catch (_) {
-            state.faceCheck = 'error';
-            signal('camera_face_check_error');
-            return true;
-        }
+        }catch(_){state.faceCheck='error';signal('camera_face_check_error');return true;}
     }
 
     async function cameraCheck() {
-        const consent = qs('taCameraConsent');
-        if (!consent || !consent.checked) throw new Error('Izin kamera harus disetujui sebelum kalibrasi.');
-        if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) throw new Error('Browser ini tidak menyediakan akses kamera.');
-
-        const previewWrap = qs('taCameraPreviewWrap');
-        const video = qs('taCameraPreview');
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
-        if (video) {
-            video.srcObject = stream;
-            if (previewWrap) previewWrap.hidden = false;
-            await video.play().catch(() => {});
-        }
-        state.cameraReady = true;
-        setCheck('camera', true, 'Kamera berhasil diberi izin dan diuji');
-        const faceOk = video ? await detectFace(video) : true;
-        setCheck('face', faceOk, faceOk ? 'Pemeriksaan posisi wajah selesai' : 'Pemeriksaan posisi wajah belum lolos');
-        if (previewWrap) previewWrap.hidden = true;
-        if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
+        const consent=qs('taCameraConsent');
+        if(!consent||!consent.checked)throw new Error('Izin kamera harus disetujui sebelum kalibrasi.');
+        if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia))throw new Error('Browser ini tidak menyediakan akses kamera.');
+        const previewWrap=qs('taCameraPreviewWrap'), video=qs('taCameraPreview');
+        stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+        if(video){video.srcObject=stream;if(previewWrap)previewWrap.hidden=false;await video.play().catch(()=>{});}
+        state.cameraReady=true;setCheck('camera',true,'Kamera berhasil diberi izin dan diuji');
+        const faceOk=video?await detectFace(video):true;setCheck('face',faceOk,faceOk?'Pemeriksaan posisi wajah selesai':'Pemeriksaan posisi wajah belum lolos');
+        if(previewWrap)previewWrap.hidden=true;
+        if(stream){stream.getTracks().forEach(track=>track.stop());stream=null;}
         return true;
     }
 
     function allReady(checks) {
-        const required = ['secure', 'storage', 'cryptoOk', 'fetchOk', 'mediaOk'];
-        if (required.some(k => !checks[k])) return false;
-        if (checks.automation) return false;
-        if (CAMERA_REQUIRED && !state.cameraReady) return false;
-        if (state.faceCheck === 'failed' || state.faceCheck === 'off-center') return false;
-        return true;
+        return basicReady(checks) && (!CAMERA_REQUIRED||state.cameraReady) && state.faceCheck!=='failed' && state.faceCheck!=='off-center';
     }
 
     async function run() {
         clearError();
-        const button = qs('taCalibrationButton');
-        if (button) { button.disabled = true; button.textContent = 'Memeriksa...'; }
-        const checks = basicChecks();
-        if (!allReady(checks)) {
-            if (checks.automation) showError('Sistem mendeteksi indikator otomasi browser. Gunakan browser biasa tanpa mode otomatis.');
-            else showError('Perangkat belum memenuhi pemeriksaan dasar. Periksa HTTPS, penyimpanan browser, Web Crypto, dan kamera.');
-            updateStatus('Belum dapat memulai asesmen. Selesaikan pemeriksaan yang gagal.', false);
-            if (button) { button.disabled = false; button.textContent = 'Jalankan Kalibrasi'; }
-            return false;
+        const button=qs('taCalibrationButton');if(button){button.disabled=true;button.textContent='Memeriksa...';}
+        const checks=basicChecks();
+        if(!basicReady(checks)){
+            showError(checks.automation?'Sistem mendeteksi indikator otomasi browser. Gunakan browser biasa tanpa mode otomatis.':'Perangkat belum memenuhi pemeriksaan dasar. Periksa HTTPS, penyimpanan browser, Web Crypto, dan kamera.');
+            updateStatus('Belum dapat memulai asesmen. Selesaikan pemeriksaan yang gagal.',false);
+            if(button){button.disabled=false;button.textContent='Jalankan Kalibrasi';}return false;
         }
-
-        try {
-            await cameraCheck();
-            state.passed = allReady({ ...checks, mediaOk: true, automation: state.automation });
-        } catch (error) {
-            state.passed = false;
-            showError(error && error.message ? error.message : 'Pemeriksaan kamera gagal.');
-        }
-
-        if (state.passed) {
-            updateStatus('Semua pemeriksaan wajib selesai. Anda dapat melanjutkan ke persetujuan asesmen.', true);
-            signal('assessment_calibration_passed', { faceCheck: state.faceCheck });
-            try { sessionStorage.setItem(STATE_KEY, JSON.stringify({ ...state, at: Date.now() })); } catch (_) {}
-        } else {
-            updateStatus('Kalibrasi belum lolos. Perbaiki pemeriksaan yang gagal lalu ulangi.', false);
-            signal('assessment_calibration_failed', { faceCheck: state.faceCheck });
-        }
-        if (button) { button.disabled = false; button.textContent = state.passed ? 'Kalibrasi Ulang' : 'Jalankan Kalibrasi'; }
+        try{await cameraCheck();state.passed=allReady(checks);}catch(error){state.passed=false;showError(error&&error.message?error.message:'Pemeriksaan kamera gagal.');}
+        if(state.passed){updateStatus('Semua pemeriksaan wajib selesai. Anda dapat melanjutkan ke persetujuan asesmen.',true);signal('assessment_calibration_passed',{faceCheck:state.faceCheck});try{sessionStorage.setItem(STATE_KEY,JSON.stringify({...state,at:Date.now()}));}catch(_){}
+        }else{updateStatus('Kalibrasi belum lolos. Perbaiki pemeriksaan yang gagal lalu ulangi.',false);signal('assessment_calibration_failed',{faceCheck:state.faceCheck});}
+        if(button){button.disabled=false;button.textContent=state.passed?'Kalibrasi Ulang':'Jalankan Kalibrasi';}
         return state.passed;
     }
 
-    function installStartGuard() {
-        const original = window.startTest;
-        if (typeof original !== 'function' || original.__taCalibrationGuard) return;
-        const guarded = function () {
-            if (!state.passed) {
-                const panel = qs('taCalibrationPanel');
-                if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                showError('Kalibrasi sistem wajib diselesaikan sebelum asesmen dimulai.');
-                signal('start_blocked_calibration');
-                return false;
-            }
-            return original.apply(this, arguments);
+    function installStartGuard(){
+        const original=window.startTest;
+        if(typeof original!=='function'||original.__taCalibrationGuard)return;
+        const guarded=function(){
+            if(!state.passed){const panel=qs('taCalibrationPanel');if(panel)panel.scrollIntoView({behavior:'smooth',block:'center'});showError('Kalibrasi sistem wajib diselesaikan sebelum asesmen dimulai.');signal('start_blocked_calibration');return false;}
+            return original.apply(this,arguments);
         };
-        guarded.__taCalibrationGuard = true;
-        window.startTest = guarded;
+        guarded.__taCalibrationGuard=true;window.startTest=guarded;
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ensurePanel();
-        basicChecks();
-        const consent = qs('taCameraConsent');
-        const button = qs('taCalibrationButton');
-        if (consent && button) {
-            consent.addEventListener('change', function () { button.disabled = !consent.checked; });
-            button.addEventListener('click', run);
-        }
-        installStartGuard();
-        setTimeout(installStartGuard, 350);
+    document.addEventListener('DOMContentLoaded',function(){
+        ensurePanel();basicChecks();
+        const consent=qs('taCameraConsent'),button=qs('taCalibrationButton');
+        if(consent&&button){consent.addEventListener('change',()=>{button.disabled=!consent.checked;});button.addEventListener('click',run);}
+        installStartGuard();setTimeout(installStartGuard,350);
     });
-
-    window.TA_CALIBRATION = {
-        isPassed: function () { return state.passed; },
-        getState: function () { return { ...state }; }
-    };
+    window.TA_CALIBRATION={isPassed:()=>state.passed,getState:()=>({...state})};
 })();
