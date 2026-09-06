@@ -1,20 +1,22 @@
 /**
- * TA ASSESS — Personality 30 item pilot seed
- * Run seedPersonality30_() manually once from the Question Bank Apps Script.
- * It archives existing PERSONALITY-01 items, then creates:
- * 10 single-choice, 10 essay, 10 multi-choice.
+ * TA ASSESS | Personality 30 item pilot seed
+ * Jalankan seedPersonality30_() satu kali dari project Question Bank.
  *
- * Essay items are qualitative reflection items and are intentionally not
- * converted into numeric scores. The current profile score uses the 20
- * structured choice items; essay responses can be used later for qualitative
- * analysis or reviewed by a qualified human if the product policy allows it.
+ * Struktur instrumen:
+ * 10 single choice
+ * 10 essay
+ * 10 multi choice
+ *
+ * Essay adalah respons reflektif kualitatif dan tidak dikonversi menjadi skor
+ * numerik. Profil numerik saat ini menggunakan 20 item terstruktur. Ini dibuat
+ * transparan agar platform tidak berpura pura menilai tulisan secara psikometrik.
  */
 function seedPersonality30_() {
   const assessmentId = 'PERSONALITY-01';
   const dims = ['Openness','Conscientiousness','Extraversion','Agreeableness','Neuroticism'];
 
   const singleTexts = [
-    'Ketika menemukan cara baru untuk menyelesaikan masalah, saya biasanya mencoba memahami kemungkinan yang berbeda terlebih dahulu.',
+    'Ketika menemukan cara baru untuk menyelesaikan masalah, saya biasanya mencoba memahami beberapa kemungkinan terlebih dahulu.',
     'Saat mendapat tugas dengan tenggat waktu, saya biasanya membuat langkah kerja agar progresnya mudah dipantau.',
     'Dalam kegiatan kelompok, saya cukup nyaman memulai percakapan dan mengajak anggota lain terlibat.',
     'Jika teman sedang menghadapi masalah, saya biasanya berusaha mendengarkan sebelum memberikan tanggapan.',
@@ -31,7 +33,7 @@ function seedPersonality30_() {
     'Bagaimana biasanya Anda mengatur tugas yang harus diselesaikan dalam beberapa hari?',
     'Ceritakan situasi ketika Anda berada dalam kelompok dengan orang yang belum terlalu Anda kenal.',
     'Apa yang biasanya Anda lakukan ketika seseorang bercerita tentang masalah pribadinya kepada Anda?',
-    'Ceritakan pengalaman ketika rencana yang sudah Anda susun berubah secara tiba-tiba. Bagaimana Anda menyesuaikan diri?',
+    'Ceritakan pengalaman ketika rencana yang sudah Anda susun berubah secara tiba tiba. Bagaimana Anda menyesuaikan diri?',
     'Topik atau kegiatan seperti apa yang membuat Anda ingin terus mencari tahu lebih dalam?',
     'Kebiasaan apa yang paling membantu Anda menjaga pekerjaan tetap teratur?',
     'Bagaimana cara Anda biasanya menyesuaikan diri ketika berada di lingkungan sosial yang baru?',
@@ -69,10 +71,10 @@ function seedPersonality30_() {
     {id:'A',label:'Sangat tidak sesuai',value:'1',score:{[dimension]:1}},
     {id:'B',label:'Kurang sesuai',value:'2',score:{[dimension]:2}},
     {id:'C',label:'Cukup sesuai',value:'3',score:{[dimension]:3}},
-    {id:'D',label:'Sangat sesuai',value:'5',score:{[dimension]:5}}
+    {id:'D',label:'Sesuai',value:'4',score:{[dimension]:4}},
+    {id:'E',label:'Sangat sesuai',value:'5',score:{[dimension]:5}}
   ];
 
-  // Archive previous items so the public Question Bank returns exactly 30 active pilot items.
   const rows = readRows_(QB.SHEETS.QUESTIONS);
   for (let i=1;i<rows.length;i++) {
     if (String(rows[i][1]) === assessmentId && String(rows[i][14] || '') !== 'ARCHIVED') {
@@ -84,23 +86,23 @@ function seedPersonality30_() {
   let count = 0;
   singleTexts.forEach((text,i) => {
     const dimension = dims[i % dims.length];
-    const q = {questionId:`${assessmentId}-S${String(i+1).padStart(2,'0')}`,assessmentId,version:'1.0',orderIndex:order++,itemType:'single_choice',text,dimension,required:true,reverse:false,tags:['structured','single_choice'],status:'PILOT',options:optionsForSingle(dimension),scoring:{mode:'option_score'},notes:'Pilot item; review wording and item statistics after data collection.'};
+    const q = {questionId:`${assessmentId}-S${String(i+1).padStart(2,'0')}`,assessmentId,version:'1.1',orderIndex:order++,itemType:'single_choice',text,dimension,required:true,reverse:false,tags:['structured','single_choice'],status:'PILOT',options:optionsForSingle(dimension),scoring:{mode:'option_score'},notes:'Item pilot. Evaluasi statistik item dilakukan setelah data uji terkumpul.'};
     upsertQuestion_(q); count++;
   });
 
   essayTexts.forEach((text,i) => {
     const dimension = dims[i % dims.length];
-    const q = {questionId:`${assessmentId}-E${String(i+1).padStart(2,'0')}`,assessmentId,version:'1.0',orderIndex:order++,itemType:'essay',text,dimension,required:true,reverse:false,tags:['qualitative','essay'],status:'PILOT',options:[],scoring:{mode:'qualitative_only'},notes:'Qualitative reflection item; not included in numeric score.'};
+    const q = {questionId:`${assessmentId}-E${String(i+1).padStart(2,'0')}`,assessmentId,version:'1.1',orderIndex:order++,itemType:'essay',text,dimension,required:true,reverse:false,tags:['qualitative','essay'],status:'PILOT',options:[],scoring:{mode:'qualitative_only'},notes:'Respons reflektif kualitatif. Tidak termasuk skor numerik.'};
     upsertQuestion_(q); count++;
   });
 
   multiTexts.forEach((text,i) => {
     const dimension = dims[i % dims.length];
-    const options = multiOptions[i].map((label,j) => ({id:`${String.fromCharCode(65+j)}`,label,value:'1',score:{[dimension]:1}}));
-    const q = {questionId:`${assessmentId}-M${String(i+1).padStart(2,'0')}`,assessmentId,version:'1.0',orderIndex:order++,itemType:'multi_choice',text,dimension,required:true,reverse:false,tags:['structured','multi_choice'],status:'PILOT',options,scoring:{mode:'sum_option_score',max:5},notes:'Pilot multi-choice item; number of selections contributes to the dimension score up to the scale maximum.'};
+    const options = multiOptions[i].map((label,j) => ({id:String.fromCharCode(65+j),label,value:'1',score:{[dimension]:1}}));
+    const q = {questionId:`${assessmentId}-M${String(i+1).padStart(2,'0')}`,assessmentId,version:'1.1',orderIndex:order++,itemType:'multi_choice',text,dimension,required:true,reverse:false,tags:['structured','multi_choice'],status:'PILOT',options,scoring:{mode:'sum_option_score',max:4},notes:'Jumlah pilihan terpilih menjadi indikator intensitas respons pada dimensi ini. Interpretasi tetap bersifat pilot.'};
     upsertQuestion_(q); count++;
   });
 
-  upsertAssessment_({assessmentId,name:'Big Five Personality: Eksplorasi 30 Soal',category:'Personal Exploration',description:'Eksplorasi kecenderungan lima dimensi kepribadian melalui 30 item terstruktur dan reflektif.',status:'PILOT',version:'1.0',targetPopulation:'Umum 13+',estimatedMinutes:12,scale:{min:1,max:5}});
-  return {success:true,assessmentId,count,structure:{single_choice:10,essay:10,multi_choice:10},status:'PILOT'};
+  upsertAssessment_({assessmentId,name:'Big Five Personality: Eksplorasi 30 Soal',category:'Personal Exploration',description:'Eksplorasi kecenderungan lima dimensi kepribadian melalui 30 item terstruktur dan reflektif.',status:'PILOT',version:'1.1',targetPopulation:'Umum 13+',estimatedMinutes:12,scale:{min:1,max:5}});
+  return {success:true,assessmentId,count,structure:{single_choice:10,essay:10,multi_choice:10},status:'PILOT',version:'1.1'};
 }
