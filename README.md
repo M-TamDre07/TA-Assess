@@ -58,41 +58,42 @@ Informasi metodologi dan batasan penggunaan tersedia di:
 - [`docs/SETUP.md`](docs/SETUP.md)
 - [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)
 - [`docs/SECURITY.md`](docs/SECURITY.md)
+- [`docs/REPOSITORY-STRUCTURE.md`](docs/REPOSITORY-STRUCTURE.md) — peta struktur dan checklist maintenance
 
 ## Struktur Repository
 
 ```text
 TA-Assess/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── workflows/
-│   │   ├── ci.yml
-│   │   └── codeql.yml
-│   ├── dependabot.yml
-│   └── pull_request_template.md
-├── index.html
-├── docs.html
-├── admin.html
-├── admin-dashboard.html
-├── account.html
-├── test.html
-├── result.html
-├── verify.html
+├── .github/                    # CI, CodeQL, template, Dependabot
+├── api/                        # Vercel gateway/server functions
+├── assets/                     # aset statis
+├── css/                        # stylesheet
+├── docs/                       # dokumentasi teknis
+├── google-apps-script/         # source backend Apps Script
+├── js/                         # frontend, engine, account, admin, security
+├── tests/                      # repository checks + test engine
+├── index.html                  # beranda
+├── account.html                # akun/dashboard
+├── account-results.html        # hasil tersimpan
+├── account-insights.html       # profil lengkap
+├── test.html                   # pengerjaan asesmen
+├── result.html                 # hasil sementara
+├── verify.html                 # verifikasi laporan
+├── admin.html                  # pintu masuk admin
+├── admin-dashboard.html        # dashboard admin
+├── docs.html                   # dokumentasi UI publik
 ├── 404.html
 ├── favicon.svg
 ├── site.webmanifest
 ├── robots.txt
 ├── vercel.json
-├── css/
-├── js/
-├── api/
-├── tests/
-├── google-apps-script/
-├── docs/
-└── README.md
+├── README.md
+└── LICENSE
 ```
 
-`google-apps-script/code.gs` disimpan di repository sebagai **source/version-control**. `google-apps-script/account.gs` adalah backend akun terpisah yang dapat memakai Spreadsheet yang sama. Kode yang dieksekusi tetap berada pada project Google Apps Script yang telah dideploy.
+Lihat [`docs/REPOSITORY-STRUCTURE.md`](docs/REPOSITORY-STRUCTURE.md) untuk peta file yang lebih rinci dan aturan maintenance. Halaman HTML entry point sengaja tetap di root karena dipanggil langsung oleh static hosting/Vercel; memindahkannya ke subfolder tanpa kebutuhan deployment akan meningkatkan risiko path rusak.
+
+`google-apps-script/code.gs`, `account.gs`, dan `question-bank.gs` disimpan sebagai source/version-control. Karena masing-masing memiliki `doGet`/`doPost`, ketiga service tersebut harus dipisahkan secara operasional menjadi Web App/project Apps Script yang berbeda bila semuanya dideploy. Source tetap boleh berada dalam satu folder repository.
 
 ## Admin
 
@@ -124,7 +125,7 @@ node --check google-apps-script/account.gs
 
 GitHub Actions menjalankan pemeriksaan tersebut pada push ke `main` dan pull request ke `main`, termasuk syntax check untuk JavaScript frontend dan source Apps Script. CodeQL melakukan analisis keamanan JavaScript, sedangkan Dependabot memantau GitHub Actions.
 
-`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js`, pola secret umum di runtime config, wiring halaman verifikasi, admin backend, route `/admin`, dokumentasi UI, dan asset SEO.
+`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js`, pola secret umum di runtime config, konsistensi endpoint backend, wiring halaman verifikasi, admin backend, route `/admin`, dokumentasi UI, dan asset SEO.
 
 > **Catatan:** CI membuktikan konsistensi source code dan struktur repository. CI tidak dapat membuktikan deployment Google Apps Script, Google Sheets, Vercel, PDF, kamera, atau browser secara nyata tanpa pengujian integrasi/e2e terpisah.
 
@@ -227,5 +228,3 @@ Lisensi perangkat lunak tidak memberikan hak untuk mengklaim hasil TA Assess seb
 ## Pengembang
 
 **Tama Andrea Studio**
-
-TA Assess dibuat sebagai proyek pengembangan perangkat lunak dan eksplorasi teknologi asesmen digital dengan prinsip transparansi terhadap kemampuan, keterbatasan, dan status pengembangan instrumen.
