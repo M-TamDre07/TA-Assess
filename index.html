@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TA Assess - Platform Asesmen Mandiri</title>
+    <meta name="description" content="TA Assess — platform self-assessment untuk eksplorasi diri dan penyajian hasil asesmen terstruktur.">
+    <meta name="robots" content="index,follow">
+    <title>TA Assess — Platform Self-Assessment</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Navigasi utama">
         <div class="nav-container">
             <div class="logo">
                 <strong>TA</strong> ASSESS
-                <span class="subtitle">Platform Penerbit Laporan</span>
+                <span class="subtitle">Platform Self-Assessment</span>
             </div>
             <div class="nav-links">
                 <a href="#home" class="nav-link active">Beranda</a>
@@ -23,10 +25,10 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section id="home" class="hero">
         <div class="hero-content">
             <h1>Eksplorasi Diri Melalui Asesmen Digital</h1>
-            <p>Platform digital untuk asesmen mandiri, eksplorasi diri, dan penyajian hasil asesmen terstruktur.</p>
+            <p>Platform digital untuk self-assessment, eksplorasi diri, dan penyajian hasil asesmen secara terstruktur.</p>
             <a href="#assessments" class="cta-button">Mulai Asesmen</a>
         </div>
     </section>
@@ -35,8 +37,8 @@
     <section id="assessments" class="assessments">
         <div class="container">
             <h2>Pilih Asesmen</h2>
-            <p class="section-subtitle">Telusuri diri Anda melalui instrumen yang telah dikembangkan secara ilmiah</p>
-            
+            <p class="section-subtitle">Pilih modul yang tersedia dan lihat status serta batasan penggunaannya sebelum memulai.</p>
+
             <div class="assessments-grid" id="assessmentsContainer">
                 <!-- Will be populated by JavaScript -->
             </div>
@@ -50,19 +52,19 @@
             <div class="about-content">
                 <div class="about-item">
                     <h3>Self-Assessment</h3>
-                    <p>Hasil asesmen mandiri berbasis instrumen yang tersedia. Dirancang untuk eksplorasi diri dan pengembangan pengetahuan tentang diri sendiri.</p>
+                    <p>Hasil berasal dari jawaban pengguna pada modul yang tersedia dan ditujukan untuk eksplorasi diri serta refleksi personal.</p>
                 </div>
                 <div class="about-item">
                     <h3>Transparansi Metodologi</h3>
-                    <p>Kami menyediakan informasi lengkap tentang setiap instrumen, metode scoring, dan batasan penggunaan hasil asesmen.</p>
+                    <p>Informasi instrumen, scoring, status pengembangan, dan batasan penggunaan disediakan agar hasil tidak disalahartikan.</p>
                 </div>
                 <div class="about-item">
-                    <h3>Keamanan & Privasi</h3>
-                    <p>Data Anda dilindungi dengan enkripsi tingkat enterprise. Kami hanya mengumpulkan informasi yang diperlukan untuk asesmen.</p>
+                    <h3>Privasi & Keamanan</h3>
+                    <p>TA Assess tidak menaruh secret seperti API key atau token pada frontend. Fitur penyimpanan eksternal bersifat opsional dan bergantung pada konfigurasi deployment.</p>
                 </div>
                 <div class="about-item">
-                    <h3>Verifikasi Dokumen</h3>
-                    <p>Setiap laporan memiliki ID unik dan dapat diverifikasi untuk memastikan keaslian dan integritas hasil.</p>
+                    <h3>ID & Verifikasi</h3>
+                    <p>Laporan memiliki ID unik. Verifikasi saat ini menggunakan mekanisme demo berbasis browser; verifikasi lintas perangkat membutuhkan backend yang sesuai.</p>
                 </div>
             </div>
         </div>
@@ -73,7 +75,8 @@
         <div class="container">
             <div class="notice-box">
                 <h3>⚠️ Penting</h3>
-                <p>Hasil asesmen pada platform TA Assess merupakan hasil self-assessment dan <strong>bukan diagnosis psikologis</strong>. Hasil ini tidak dimaksudkan sebagai pengganti pemeriksaan atau konsultasi dengan Psikolog profesional.</p>
+                <p>Hasil asesmen pada platform TA Assess merupakan hasil <strong>self-assessment</strong> dan <strong>bukan diagnosis psikologis</strong>. Hasil ini tidak dimaksudkan sebagai pengganti pemeriksaan atau konsultasi dengan Psikolog profesional.</p>
+                <p>Instrumen yang tersedia saat ini berstatus DEMO atau PILOT dan belum diklaim sebagai instrumen psikologi tervalidasi/tersertifikasi.</p>
                 <p>Penerimaan laporan untuk kebutuhan sekolah, pekerjaan, beasiswa, atau institusi lain bergantung pada kebijakan pihak yang meminta.</p>
             </div>
         </div>
@@ -83,18 +86,18 @@
     <section id="support" class="support">
         <div class="container">
             <h2>Dukung Platform Kami</h2>
-            <p>Jika Anda merasa platform ini bermanfaat, Anda dapat memberikan dukungan finansial kepada pengembang melalui:</p>
-            
+            <p>Jika Anda merasa platform ini bermanfaat, dukungan dapat diberikan setelah kanal donasi dikonfigurasi.</p>
+
             <div class="support-links">
                 <div class="support-item">
                     <h4>💝 Saweria</h4>
-                    <a href="#" target="_blank" class="support-button" id="saweriaLink">
+                    <a href="#" target="_blank" rel="noopener noreferrer" class="support-button" id="saweriaLink">
                         Donasi via Saweria
                     </a>
                 </div>
                 <div class="support-item">
                     <h4>💬 Feedback & Saran</h4>
-                    <a href="#" target="_blank" class="support-button" id="formsperra">
+                    <a href="#" target="_blank" rel="noopener noreferrer" class="support-button" id="formsperra">
                         Berikan Feedback
                     </a>
                 </div>
@@ -103,21 +106,21 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer id="contact" class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-item">
                     <h4>TA ASSESS</h4>
-                    <p>Platform penerbit laporan asesmen mandiri.</p>
+                    <p>Platform self-assessment dan eksplorasi diri oleh Tama Andrea Studio.</p>
                 </div>
                 <div class="footer-item">
                     <h4>Kontak</h4>
                     <p id="contactEmail">Kontak akan tersedia setelah konfigurasi.</p>
                 </div>
                 <div class="footer-item">
-                    <h4>Kebijakan</h4>
-                    <a href="#privacy">Privasi</a><br>
-                    <a href="#terms">Syarat Penggunaan</a>
+                    <h4>Dokumentasi</h4>
+                    <a href="docs/PRIVACY.md">Privasi</a><br>
+                    <a href="docs/ASSESSMENT-METHODOLOGY.md">Metodologi Asesmen</a>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -127,9 +130,9 @@
     </footer>
 
     <!-- Modal untuk Assessment Detail -->
-    <div id="assessmentModal" class="modal">
+    <div id="assessmentModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalBody">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close" role="button" tabindex="0" aria-label="Tutup">&times;</span>
             <div id="modalBody">
                 <!-- Content will be populated by JavaScript -->
             </div>
