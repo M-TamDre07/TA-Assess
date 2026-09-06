@@ -54,10 +54,14 @@ assert(account.includes('adminDeleteReport_'),'account backend belum memiliki ad
 assert(account.includes('adminDeleteUser_'),'account backend belum memiliki admin delete user');
 assert(account.includes('adminSetUserStatus_'),'account backend belum memiliki admin status control');
 assert(account.includes('adminRevokeSession_'),'account backend belum memiliki session revoke control');
+assert(account.includes("if(sheetName==='Accounts')"),'account backend belum meredaksi field sensitif Accounts');
+assert(account.includes("if(sheetName==='Sessions')"),'account backend belum meredaksi field sensitif Sessions');
+assert(!account.includes("headers=values[0]||[],rows=values.slice(1).reverse().slice(0,limit)"),'account backend masih mengembalikan seluruh field sheet secara generik');
 
 const vercel=read('vercel.json');
 assert(vercel.includes('"/admin"'),'vercel.json belum menyediakan route /admin');
 assert(vercel.includes('"/admin/"'),'vercel.json belum menyediakan route /admin/');
+assert(vercel.includes('camera=(self)'),'vercel.json memblokir kamera yang dibutuhkan asesmen');
 
 const index=read('index.html');
 assert(index.includes('site.webmanifest'),'index.html belum memuat web manifest');
@@ -71,4 +75,4 @@ assert(docs.includes('id="methodology"'),'docs.html belum memiliki section metod
 assert(docs.includes('id="account-security"'),'docs.html belum memiliki section keamanan akun');
 assert(docs.includes('id="setup"'),'docs.html belum memiliki section setup backend');
 
-if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, admin wiring, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
+if(errors.length){console.error(`REPOSITORY CHECK FAILED: ${errors.length} error(s)`);errors.forEach(error=>console.error(`- ${error}`));process.exitCode=1;}else{console.log('REPOSITORY CHECK PASSED: structure, links, admin redaction, SEO assets, security wiring, runtime config, and verification wiring are consistent.');process.exitCode=0;}
