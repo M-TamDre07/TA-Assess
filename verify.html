@@ -3,330 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Laporan - TA Assess</title>
+    <meta name="description" content="Verifikasi laporan TA Assess berdasarkan data backend yang tercatat.">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Verifikasi Laporan — TA Assess</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        .verify-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .verify-header {
-            background: var(--primary-color);
-            color: var(--bg-white);
-            padding: 2rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .verify-form {
-            background-color: var(--bg-white);
-            padding: 2rem;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-
-        .verify-button {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--secondary-color);
-            color: var(--bg-white);
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .verify-button:hover {
-            background-color: #2980b9;
-        }
-
-        .verify-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .verification-result {
-            background-color: var(--bg-white);
-            padding: 2rem;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            display: none;
-        }
-
-        .result-valid {
-            background-color: #d4edda;
-            border-color: var(--success-color);
-        }
-
-        .result-invalid {
-            background-color: #f8d7da;
-            border-color: var(--accent-color);
-        }
-
-        .result-icon {
-            font-size: 3rem;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .result-status {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .result-valid .result-status {
-            color: var(--success-color);
-        }
-
-        .result-invalid .result-status {
-            color: var(--accent-color);
-        }
-
-        .result-details {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background-color: rgba(255, 255, 255, 0.5);
-            border-radius: 4px;
-        }
-
-        .result-detail-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-        }
-
-        .result-detail-label {
-            font-weight: 600;
-        }
-
-        .result-detail-value {
-            color: var(--text-light);
-        }
-
-        .info-box {
-            background-color: var(--bg-light);
-            border-left: 4px solid var(--secondary-color);
-            padding: 1.5rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-        }
-
-        .info-box h3 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--secondary-color);
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .verify-page { min-height: calc(100vh - 80px); padding: 48px 20px; }
+        .verify-container { max-width: 680px; margin: 0 auto; }
+        .verify-header { background: var(--primary-color); color: var(--bg-white); padding: 2rem; border-radius: 10px; margin-bottom: 1.5rem; text-align: center; box-shadow: var(--shadow-lg); }
+        .verify-header h1 { margin-bottom: .5rem; font-size: 2rem; }
+        .verify-header p { color: rgba(255,255,255,.85); margin: 0; }
+        .verify-form, .verification-result, .info-box { background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: .5rem; font-weight: 600; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: var(--secondary-color); box-shadow: 0 0 0 3px rgba(52,152,219,.12); }
+        .verify-button { width: 100%; padding: 12px; background: var(--secondary-color); color: var(--bg-white); border: 0; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; }
+        .verify-button:hover { background: #2980b9; }
+        .verify-button:disabled { opacity: .6; cursor: wait; }
+        .info-box { border-left: 4px solid var(--secondary-color); }
+        .info-box h2 { text-align: left; font-size: 1.2rem; margin-bottom: .75rem; }
+        .info-box p { margin-bottom: .5rem; }
+        .verification-result { display: none; }
+        .result-valid { background: #f0fff4; border-color: var(--success-color); }
+        .result-invalid { background: #fff5f5; border-color: var(--accent-color); }
+        .result-warning { background: #fffaf0; border-color: var(--warning-color); }
+        .result-icon { font-size: 2.5rem; text-align: center; margin-bottom: .5rem; }
+        .result-status { font-size: 1.35rem; font-weight: 800; text-align: center; margin-bottom: .75rem; }
+        .result-valid .result-status { color: var(--success-color); }
+        .result-invalid .result-status { color: var(--accent-color); }
+        .result-warning .result-status { color: var(--warning-color); }
+        .result-message { text-align: center; }
+        .result-details { margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,.72); border-radius: 6px; }
+        .result-detail-item { display: grid; grid-template-columns: 180px 1fr; gap: 1rem; padding: .65rem 0; border-bottom: 1px solid rgba(189,195,199,.5); }
+        .result-detail-item:last-child { border-bottom: 0; }
+        .result-detail-label { font-weight: 700; }
+        .result-detail-value { color: var(--text-light); overflow-wrap: anywhere; }
+        .loading { display: none; text-align: center; padding: 1rem; }
+        .spinner { display: inline-block; width: 22px; height: 22px; border: 3px solid var(--border-color); border-top-color: var(--secondary-color); border-radius: 50%; animation: spin .6s linear infinite; }
+        .status-note { display: inline-block; margin-top: .75rem; padding: .35rem .65rem; border-radius: 999px; background: var(--bg-light); font-size: .85rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 600px) {
+            .verify-page { padding: 28px 12px; }
+            .verify-header, .verify-form, .verification-result, .info-box { padding: 1.15rem; }
+            .result-detail-item { grid-template-columns: 1fr; gap: .15rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Navigasi utama">
         <div class="nav-container">
             <div class="logo">
                 <strong>TA</strong> ASSESS
-                <span class="subtitle">Platform Penerbit Laporan</span>
+                <span class="subtitle">Verifikasi Laporan</span>
             </div>
             <div class="nav-links">
-                <a href="index.html" class="nav-link">← Kembali ke Beranda</a>
+                <a href="index.html" class="nav-link">← Kembali</a>
             </div>
         </div>
     </nav>
 
-    <!-- Verification Container -->
-    <div class="verify-container">
-        <div class="verify-header">
-            <h1>Verifikasi Laporan</h1>
-            <p>Masukkan ID laporan untuk memverifikasi keaslian dokumentnya</p>
-        </div>
+    <main class="verify-page">
+        <div class="verify-container">
+            <header class="verify-header">
+                <h1>Verifikasi Laporan</h1>
+                <p>Periksa apakah ID laporan tercatat pada backend TA Assess.</p>
+            </header>
 
-        <div class="info-box">
-            <h3>Bagaimana Cara Memverifikasi?</h3>
-            <p>Masukkan ID laporan asesmen Anda untuk melihat apakah laporan tersebut tercatat di sistem.</p>
-            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">
-                ID laporan dapat ditemukan di bagian atas laporan PDF atau di halaman hasil asesmen Anda.
-            </p>
-            <p style="font-size: 0.85rem; background:#fff3cd; border-left:4px solid var(--warning-color); padding:0.75rem; margin-top:1rem;">
-                <strong>Mode DEMO:</strong> Verifikasi ini saat ini hanya memeriksa data yang tersimpan lokal di browser tempat laporan dibuat. Ini <strong>bukan</strong> sistem verifikasi backend produksi dan <strong>tidak</strong> anti-pemalsuan. Lihat <code>docs/ASSESSMENT-METHODOLOGY.md</code> untuk arsitektur produksi yang direncanakan.
-            </p>
-        </div>
+            <section class="info-box" aria-labelledby="how-title">
+                <h2 id="how-title">Cara kerja</h2>
+                <p>Masukkan ID yang tercantum pada laporan. Halaman ini meminta data verifikasi dari Google Apps Script TA Assess.</p>
+                <p>Verifikasi hanya memastikan catatan laporan dan integritas signature yang tersedia di sistem. Hasil self-assessment tetap bukan diagnosis atau sertifikasi psikologis.</p>
+            </section>
 
-        <!-- Verification Form -->
-        <div class="verify-form">
-            <div class="form-group">
-                <label for="reportId">ID Laporan:</label>
-                <input type="text" id="reportId" placeholder="Contoh: TA2685F42K1" autocomplete="off">
-            </div>
-            <button class="verify-button" onclick="verifyReport()">Verifikasi</button>
-        </div>
+            <section class="verify-form" aria-label="Form verifikasi">
+                <div class="form-group">
+                    <label for="reportId">ID Laporan</label>
+                    <input type="text" id="reportId" placeholder="Contoh: PERSON-XXXX-ABCDE" autocomplete="off" spellcheck="false">
+                </div>
+                <button class="verify-button" id="verifyButton" type="button">Verifikasi Laporan</button>
+                <div id="loadingState" class="loading" aria-live="polite">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p style="margin:.6rem 0 0;">Menghubungi backend verifikasi…</p>
+                </div>
+            </section>
 
-        <!-- Verification Result -->
-        <div id="verificationResult" class="verification-result">
-            <div class="result-icon" id="resultIcon"></div>
-            <div class="result-status" id="resultStatus"></div>
-            <p id="resultMessage" style="text-align: center;"></p>
-            <div class="result-details" id="resultDetails"></div>
+            <section id="verificationResult" class="verification-result" aria-live="polite">
+                <div class="result-icon" id="resultIcon" aria-hidden="true"></div>
+                <div class="result-status" id="resultStatus"></div>
+                <p class="result-message" id="resultMessage"></p>
+                <div class="result-details" id="resultDetails"></div>
+            </section>
         </div>
-
-        <!-- Loading State -->
-        <div id="loadingState" style="display: none;">
-            <div class="loading">
-                <div class="spinner"></div>
-                <p style="margin-top: 1rem;">Verifikasi laporan...</p>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <script src="js/assessments-data.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/runtime-config.js"></script>
     <script>
-        // ============================================
-        // Verification Logic — DEMO ADAPTER
-        //
-        // Arsitektur (lihat docs/ASSESSMENT-METHODOLOGY.md untuk versi produksi):
-        //   report ID -> verification data source -> verification endpoint -> result
-        //
-        // Adapter saat ini: localStorage di browser yang sama (diisi oleh
-        // result-engine.js saat laporan dibuat). Ini MEMANG dilabeli DEMO
-        // karena bukan backend nyata — data tidak tersinkron antar perangkat/
-        // browser, dan siapa pun yang membuka console browser bisa mengubahnya.
-        // Untuk produksi, ganti fungsi getDemoVerificationAdapter() di bawah
-        // dengan pemanggilan ke endpoint backend/Apps Script yang membaca
-        // Google Sheets, lalu tandai verificationStatus sesuai hasil nyata.
-        // ============================================
+        (function () {
+            'use strict';
 
-        function getDemoVerificationAdapter(reportId) {
-            try {
-                const store = JSON.parse(localStorage.getItem('ta_assess_demo_reports') || '{}');
-                return store[reportId] || null;
-            } catch (e) {
-                console.warn('[TA ASSESS] Gagal membaca demo verification store:', e);
-                return null;
-            }
-        }
-
-        function verifyReport() {
-            const reportId = document.getElementById('reportId').value.trim().toUpperCase();
-
-            if (!reportId) {
-                alert('Masukkan ID laporan terlebih dahulu');
-                return;
-            }
-
-            document.getElementById('loadingState').style.display = 'block';
-            document.getElementById('verificationResult').style.display = 'none';
-
-            setTimeout(() => performVerification(reportId), 600);
-        }
-
-        function performVerification(reportId) {
-            document.getElementById('loadingState').style.display = 'none';
-
+            const input = document.getElementById('reportId');
+            const button = document.getElementById('verifyButton');
+            const loading = document.getElementById('loadingState');
             const result = document.getElementById('verificationResult');
-            const resultIcon = document.getElementById('resultIcon');
-            const resultStatus = document.getElementById('resultStatus');
-            const resultMessage = document.getElementById('resultMessage');
-            const resultDetails = document.getElementById('resultDetails');
+            const icon = document.getElementById('resultIcon');
+            const status = document.getElementById('resultStatus');
+            const message = document.getElementById('resultMessage');
+            const details = document.getElementById('resultDetails');
 
-            const data = getDemoVerificationAdapter(reportId);
-
-            if (data) {
-                result.className = 'verification-result result-valid';
-                resultIcon.textContent = '✓';
-                resultStatus.textContent = 'Laporan Ditemukan (DEMO)';
-                resultMessage.textContent = 'Laporan dengan ID ini tercatat pada sesi browser ini. Mode DEMO — bukan verifikasi backend produksi.';
-
-                resultDetails.innerHTML = `
-                    <div class="result-detail-item"><span class="result-detail-label">ID Laporan:</span><span class="result-detail-value">${data.reportId}</span></div>
-                    <div class="result-detail-item"><span class="result-detail-label">Tipe Asesmen:</span><span class="result-detail-value">${data.assessmentName}</span></div>
-                    <div class="result-detail-item"><span class="result-detail-label">Tanggal:</span><span class="result-detail-value">${new Date(data.timestamp).toLocaleDateString('id-ID')}</span></div>
-                    <div class="result-detail-item"><span class="result-detail-label">Instrument/Scoring Version:</span><span class="result-detail-value">${data.instrumentVersion} / ${data.scoringVersion}</span></div>
-                    <div class="result-detail-item"><span class="result-detail-label">Status:</span><span class="result-detail-value">${data.status}</span></div>
-                `;
-            } else {
-                result.className = 'verification-result result-invalid';
-                resultIcon.textContent = '✗';
-                resultStatus.textContent = 'Laporan Tidak Ditemukan (di browser ini)';
-                resultMessage.textContent = 'ID tidak ditemukan di penyimpanan lokal browser ini. Ini bisa terjadi jika laporan dibuat di perangkat/browser lain — mode DEMO belum mendukung sinkronisasi lintas perangkat.';
-
-                resultDetails.innerHTML = `
-                    <div class="result-detail-item"><span class="result-detail-label">ID yang Dicari:</span><span class="result-detail-value">${reportId}</span></div>
-                    <div class="result-detail-item"><span class="result-detail-label">Status Verifikasi:</span><span class="result-detail-value">NOT FOUND (DEMO)</span></div>
-                `;
+            function escapeHtml(value) {
+                return String(value == null ? '' : value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
             }
 
-            result.style.display = 'block';
-        }
-
-        // Allow Enter key to submit
-        document.getElementById('reportId').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                verifyReport();
+            function formatDate(value) {
+                if (!value) return '—';
+                const date = new Date(value);
+                return Number.isNaN(date.getTime()) ? escapeHtml(value) : date.toLocaleString('id-ID');
             }
-        });
 
-        // Check URL parameter
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            
+            function setLoading(active) {
+                loading.style.display = active ? 'block' : 'none';
+                button.disabled = active;
+                button.textContent = active ? 'Memverifikasi…' : 'Verifikasi Laporan';
+            }
+
+            function showResult(type, iconText, title, text, data) {
+                result.className = 'verification-result ' + type;
+                icon.textContent = iconText;
+                status.textContent = title;
+                message.textContent = text;
+
+                details.innerHTML = data ? `
+                    <div class="result-detail-item"><span class="result-detail-label">ID Laporan</span><span class="result-detail-value">${escapeHtml(data.reportId)}</span></div>
+                    <div class="result-detail-item"><span class="result-detail-label">Asesmen</span><span class="result-detail-value">${escapeHtml(data.assessmentName || data.assessmentId)}</span></div>
+                    <div class="result-detail-item"><span class="result-detail-label">Diterbitkan</span><span class="result-detail-value">${formatDate(data.issuedAt)}</span></div>
+                    <div class="result-detail-item"><span class="result-detail-label">Versi Instrumen</span><span class="result-detail-value">${escapeHtml(data.instrumentVersion || '—')}</span></div>
+                    <div class="result-detail-item"><span class="result-detail-label">Versi Scoring</span><span class="result-detail-value">${escapeHtml(data.scoringVersion || '—')}</span></div>
+                    <div class="result-detail-item"><span class="result-detail-label">Status</span><span class="result-detail-value">${escapeHtml(data.status || '—')}</span></div>
+                    <div class="result-detail-item"><span class="result-detail-label">Mode Verifikasi</span><span class="result-detail-value">${escapeHtml(data.verificationMode || '—')}</span></div>
+                ` : '';
+
+                result.style.display = 'block';
+            }
+
+            async function verifyReport() {
+                const reportId = input.value.trim().toUpperCase();
+                input.value = reportId;
+
+                if (!reportId) {
+                    showResult('result-invalid', '!', 'ID Belum Diisi', 'Masukkan ID laporan terlebih dahulu.', null);
+                    input.focus();
+                    return;
+                }
+
+                const endpoint = window.CONFIG && CONFIG.GOOGLE_SHEETS_API;
+                if (!endpoint) {
+                    showResult('result-invalid', '!', 'Konfigurasi Belum Siap', 'Endpoint backend verifikasi belum dikonfigurasi pada runtime-config.js.', null);
+                    return;
+                }
+
+                setLoading(true);
+                result.style.display = 'none';
+
+                try {
+                    const url = endpoint + (endpoint.includes('?') ? '&' : '?') + 'action=verify&reportId=' + encodeURIComponent(reportId);
+                    const response = await fetch(url, { method: 'GET', cache: 'no-store' });
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+
+                    const data = await response.json();
+                    if (!data || data.success !== true) throw new Error(data && data.error ? data.error : 'Respons backend tidak valid.');
+
+                    if (!data.found) {
+                        showResult('result-invalid', '✕', 'Laporan Tidak Ditemukan', 'Tidak ada catatan laporan dengan ID tersebut pada backend TA Assess.', data);
+                        return;
+                    }
+
+                    if (data.signatureValid === false) {
+                        showResult('result-invalid', '!', 'Integritas Tidak Valid', 'Catatan ditemukan, tetapi signature tidak cocok. Jangan gunakan laporan ini sebagai bukti keaslian.', data);
+                        return;
+                    }
+
+                    if (data.status === 'REVOKED') {
+                        showResult('result-warning', '!', 'Laporan Dicabut', 'Catatan laporan ditemukan, tetapi statusnya telah dicabut oleh sistem.', data);
+                        return;
+                    }
+
+                    const signed = data.verificationMode === 'BACKEND-SIGNED';
+                    showResult(
+                        signed ? 'result-valid' : 'result-warning',
+                        signed ? '✓' : '✓',
+                        signed ? 'Laporan Terverifikasi' : 'Laporan Tercatat (Demo Checksum)',
+                        signed
+                            ? 'ID laporan ditemukan dan signature backend cocok.'
+                            : 'ID laporan ditemukan. Backend belum memakai TA_VERIFY_SECRET, sehingga mode ini belum setara verifikasi signed produksi.',
+                        data
+                    );
+                } catch (error) {
+                    console.error('[TA ASSESS] Verification error:', error);
+                    showResult('result-invalid', '!', 'Backend Tidak Dapat Dihubungi', 'Verifikasi tidak dapat diselesaikan saat ini. Periksa deployment Web App Google Apps Script dan konfigurasi runtime.', null);
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            button.addEventListener('click', verifyReport);
+            input.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') verifyReport();
+            });
+
+            const id = new URLSearchParams(window.location.search).get('id');
             if (id) {
-                document.getElementById('reportId').value = id;
+                input.value = id.trim().toUpperCase();
                 verifyReport();
             }
-        });
+        })();
     </script>
 </body>
 </html>
