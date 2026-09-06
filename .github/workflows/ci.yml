@@ -48,6 +48,8 @@ jobs:
       - name: Syntax check Vercel Functions
         run: |
           node --check api/question-bank.js
+          node --check api/assessment-session.js
+          node --check api/assessment-submit.js
 
       - name: Syntax check Apps Script source
         run: |
