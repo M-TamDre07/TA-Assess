@@ -15,6 +15,12 @@
 
   function active(){return typeof testState!=='undefined'&&testState.startTime&&!testState.submitted;}
   function signal(name,meta={}){if(typeof registerIntegritySignal==='function')registerIntegritySignal(name,meta);}
+  async function sendGatewayEvent(eventName,metadata={}){
+    if(!serverSessionToken||typeof CONFIG==='undefined'||!CONFIG.ASSESSMENT_EVENT_API)return;
+    try{
+      await originalFetch(CONFIG.ASSESSMENT_EVENT_API,{method:'POST',headers:{'Content-Type':'application/json','X-TA-Assessment-Session':serverSessionToken},body:JSON.stringify({eventName,assessmentId:typeof testState!=='undefined'?testState.assessmentId:'',reportId:typeof testState!=='undefined'?testState.reportId:'',metadata}) ,keepalive:true});
+    }catch(_){ }
+  }
   function ensureOverlay(){
     if(overlay)return overlay;
     overlay=document.createElement('div');overlay.id='taIntegrityOverlay';overlay.setAttribute('aria-hidden','true');
@@ -40,8 +46,12 @@
       const url=`${CONFIG.ASSESSMENT_SECURITY_API}?assessmentId=${encodeURIComponent(testState.assessmentId)}&mode=${encodeURIComponent(mode)}`;
       const res=await originalFetch(url,{method:'GET',cache:'no-store'});
       const data=await res.json();
-      if(data&&data.success&&data.token){serverSessionToken=data.token;signal('server_session_ready');}
-      else signal('server_session_unavailable');
+      if(data&&data.success&&data.token){
+        serverSessionToken=data.token;
+        window.__TA_ASSESS_SERVER_SESSION_TOKEN=serverSessionToken;
+        signal('server_session_ready');
+        sendGatewayEvent('assessment_session_issued',{mode,botRisk:data.botRisk||'unknown'});
+      }else signal('server_session_unavailable');
     }catch(_){signal('server_session_unavailable');}
   }
   function installSubmitProxy(){
@@ -73,7 +83,7 @@
     if(typeof BroadcastChannel==='function'){
       try{
         channel=new BroadcastChannel(CHANNEL);
-        channel.onmessage=e=>{if(active()&&e.data&&e.data.tabId!==tabId&&e.data.assessmentId===testState.assessmentId){signal('parallel_tab_detected');showCalmMessage('Sesi asesmen terdeteksi terbuka pada tab lain. Sebaiknya gunakan satu tab agar hasil tetap konsisten.');}};
+        channel.onmessage=e=>{if(active()&&e.data&&e.data.tabId!==tabId&&e.data.assessmentId===testState.assessmentId){signal('parallel_tab_detected');sendGatewayEvent('security_warning',{type:'parallel_tab'});showCalmMessage('Sesi asesmen terdeteksi terbuka pada tab lain. Sebaiknya gunakan satu tab agar hasil tetap konsisten.');}};
         if(active())channel.postMessage({tabId,assessmentId:testState.assessmentId});
       }catch(_){ }
     }
