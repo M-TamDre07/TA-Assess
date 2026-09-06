@@ -1,251 +1,152 @@
 # TA Assess
 
-[![TA Assess CI](https://github.com/M-TamDre07/TA-Assess/actions/workflows/ci.yml/badge.svg)](https://github.com/M-TamDre07/TA-Assess/actions/workflows/ci.yml)
+TA Assess adalah platform web untuk **self-assessment**, eksplorasi diri, dan penyajian hasil asesmen terstruktur yang dikembangkan oleh Tama Andrea Studio.
 
-**TA Assess** adalah platform web untuk **self-assessment**, eksplorasi diri, dan penyajian hasil asesmen terstruktur yang dikembangkan oleh **Tama Andrea Studio**.
-
-> **Status proyek: Development / Pilot**
+> **Status: Development / Pilot**
 >
-> TA Assess bukan lembaga psikologi. Hasil asesmen adalah hasil self-assessment dan **bukan diagnosis psikologis, sertifikat psikologi, atau pengganti pemeriksaan oleh Psikolog**.
+> TA Assess bukan lembaga psikologi. Hasilnya adalah self-assessment dan bukan diagnosis psikologis, sertifikat psikologi, atau pengganti pemeriksaan oleh Psikolog.
 
-## ✦ Tentang Proyek
+## Tentang proyek
 
-TA Assess dirancang sebagai proyek yang transparan dan dapat dikembangkan secara bertahap. Fokus awalnya adalah menyediakan pengalaman asesmen digital yang sederhana, terstruktur, dan mudah dipahami, sekaligus menjaga batasan penggunaan instrumen dan hasilnya tetap jelas.
+TA Assess dibuat sebagai proyek yang transparan dan dapat dikembangkan bertahap. Instrumen yang tersedia berstatus **DEMO** atau **PILOT** dan tidak diklaim tervalidasi secara psikometrik.
 
-Instrumen yang tersedia saat ini berstatus **DEMO** atau **PILOT**. Status tersebut tidak boleh dianggap sebagai bukti validitas psikometrik.
+Fokus aplikasi saat ini meliputi:
 
-## Fitur
+- katalog asesmen dan alur consent → pertanyaan → hasil;
+- scoring engine dengan validasi rentang dan reverse scoring;
+- fallback Question Bank lokal;
+- report ID, verifikasi laporan, dan PDF;
+- Google Apps Script + Google Sheets sebagai backend tahap development/pilot;
+- rule-based Smart Insight dan recommendation engine;
+- modul akun dan panel admin terpisah;
+- gateway Vercel untuk session, submission, event, Question Bank, dan health check;
+- dokumentasi teknis yang dipisahkan menurut topik.
 
-- Katalog asesmen dan detail instrumen
-- Alur consent → pertanyaan → hasil
-- Scoring engine dengan validasi rentang dan reverse scoring
-- Penanganan jawaban kosong tanpa menghasilkan `NaN`/`Infinity`
-- Autosave progres sesi pada browser
-- Report ID yang konsisten di alur hasil
-- Generate laporan PDF melalui `html2pdf.js`
-- QR code untuk halaman verifikasi
-- Backend verification melalui Google Apps Script
-- Google Sheets sebagai penyimpanan terstruktur dengan beberapa sheet otomatis
-- Statistik profil: mean, median, standard deviation, min, max, range, completion rate, dan response time
-- Rule-based Smart Insight dan recommendation engine
-- Validasi konsistensi metadata dan jumlah soal
-- Konfigurasi publik dipisahkan dari source engine melalui `js/runtime-config.js`
-- Modul akun terpisah dengan password hashing, session expiry, lockout, dan audit metadata minimum
-- Panel admin berbasis role dengan listing data, perubahan status akun, pencabutan sesi, penghapusan laporan, dan ekspor data tampilan
-- Pusat dokumentasi UI untuk privasi, metodologi, keamanan akun, setup backend, dan kontribusi
-- Route `/admin` untuk pintu masuk panel administrator
-- SEO metadata, structured data, favicon, web manifest, crawler directives, dan halaman 404
-- GitHub issue/PR templates, Dependabot untuk GitHub Actions, dan CodeQL
+## Instrumen
 
-## Instrumen Saat Ini
+| ID | Instrumen | Status | Soal |
+|---|---|---:|---:|
+| `PERSONALITY-01` | Big Five Personality: Eksplorasi 30 Soal | PILOT | 30 |
+| `CAREER-01` | Eksplorasi Minat Karier | DEMO/PILOT | mengikuti Question Bank |
+| `LEARNING-01` | Preferensi Belajar | DEMO/PILOT | mengikuti Question Bank |
 
-| ID | Instrumen | Status | Soal | Struktur |
-|---|---|---:|---:|---:|
-| `PERSONALITY-01` | Big Five Personality: Eksplorasi 30 Soal | PILOT | 30 | 10 single-choice, 10 essay, 10 multi-choice |
-| `CAREER-01` | Eksplorasi Minat Karier | DEMO/PILOT sesuai katalog | mengikuti question bank | mengikuti question bank |
-| `LEARNING-01` | Preferensi Belajar | DEMO/PILOT sesuai katalog | mengikuti question bank | mengikuti question bank |
+Informasi metodologi dan batasan instrumen tersedia di [pusat dokumentasi](docs.html) dan dokumentasi teknis `docs/assessment/`.
 
-### Catatan metodologi
-
-Instrumen di atas merupakan adaptasi untuk eksplorasi diri. TA Assess **tidak mengklaim** bahwa instrumen tersebut telah divalidasi secara psikometrik, disertifikasi, atau setara dengan instrumen profesional/komersial tertentu.
-
-Informasi metodologi dan batasan penggunaan tersedia di:
-
-- [`docs.html`](docs.html)
-- [`docs/ASSESSMENT-METHODOLOGY.md`](docs/ASSESSMENT-METHODOLOGY.md)
-- [`docs/PRIVACY.md`](docs/PRIVACY.md)
-- [`docs/ACCOUNT-SECURITY.md`](docs/ACCOUNT-SECURITY.md)
-- [`docs/SETUP.md`](docs/SETUP.md)
-- [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)
-- [`docs/SECURITY.md`](docs/SECURITY.md)
-- [`docs/REPOSITORY-STRUCTURE.md`](docs/REPOSITORY-STRUCTURE.md) — peta struktur dan checklist maintenance
-
-## Struktur Repository
+## Struktur repository
 
 ```text
 TA-Assess/
-├── .github/                    # CI, CodeQL, template, Dependabot
-├── api/                        # Vercel gateway/server functions
-├── assets/                     # aset statis
+├── .github/                 # CI, CodeQL, template, Dependabot
+├── api/                     # Vercel Functions / gateway Node.js
+├── assets/                  # aset statis
 ├── backend/
-│   ├── apps-script/            # source Google Apps Script
-│   └── php/                    # boundary source PHP, belum menjadi runtime aplikasi
-├── css/                        # stylesheet
-├── docs/                       # dokumentasi teknis
-├── js/                         # frontend, engine, account, admin, security
-├── tests/                      # repository checks + test engine
-├── index.html                  # beranda
-├── account.html                # akun/dashboard
-├── account-results.html        # hasil tersimpan
-├── account-insights.html       # profil lengkap
-├── test.html                   # pengerjaan asesmen
-├── result.html                 # hasil sementara
-├── verify.html                 # verifikasi laporan
-├── admin.html                  # pintu masuk admin
-├── admin-dashboard.html        # dashboard admin
-├── docs.html                   # dokumentasi UI publik
+│   ├── apps-script/        # source Google Apps Script
+│   │   └── index.html       # editor Question Bank HTMLService
+│   └── php/                # boundary source PHP, belum runtime
+├── css/                    # stylesheet
+├── docs/
+│   ├── assessment/         # metodologi dan Question Bank
+│   ├── security/           # privasi dan keamanan
+│   ├── development/       # kontribusi dan struktur repository
+│   ├── deployment/         # setup dan kesiapan deployment
+│   └── testing/            # laporan pengujian
+├── js/                     # frontend, engine, account, admin, security
+├── tests/                  # pemeriksaan repository dan test engine
+├── index.html              # beranda
+├── test.html               # pengerjaan asesmen
+├── result.html              # hasil asesmen
+├── verify.html              # verifikasi laporan
+├── account*.html            # halaman akun
+├── admin*.html              # halaman admin
+├── docs.html               # dokumentasi UI publik
 ├── 404.html
-├── favicon.svg
-├── site.webmanifest
-├── robots.txt
 ├── vercel.json
 ├── README.md
 └── LICENSE
 ```
 
-Lihat [`docs/REPOSITORY-STRUCTURE.md`](docs/REPOSITORY-STRUCTURE.md) untuk peta file yang lebih rinci dan aturan maintenance. Halaman HTML entry point sengaja tetap di root karena dipanggil langsung oleh static hosting/Vercel; memindahkannya ke subfolder tanpa kebutuhan deployment akan meningkatkan risiko path rusak.
+Entry point HTML utama tetap di root agar path static hosting/Vercel tidak berubah. `backend/apps-script/index.html` adalah file berbeda: itu adalah editor Question Bank untuk HTMLService Apps Script.
 
-## Bahasa dan Runtime
+Peta lengkap repository: [`docs/development/REPOSITORY-STRUCTURE.md`](docs/development/REPOSITORY-STRUCTURE.md).
 
-- **HTML/CSS** — halaman dan presentasi frontend.
-- **JavaScript / Node.js 24.x** — frontend engine dan Vercel Functions yang aktif.
-- **Google Apps Script** — backend Google Sheets dan service Question Bank/Account yang dideploy terpisah.
-- **PHP** — disiapkan sebagai boundary source untuk pengembangan berikutnya. Scaffold PHP saat ini tidak menjadi endpoint dan tidak mengubah alur aplikasi.
+## Runtime dan backend
 
-Penambahan scaffold PHP tidak mengganti runtime Node.js Vercel dan tidak menambahkan fitur aplikasi.
+- **HTML/CSS** — frontend dan presentasi.
+- **JavaScript / Node.js 24.x** — frontend engine dan Vercel Functions.
+- **Google Apps Script** — backend Results, Account, dan Question Bank yang dideploy sebagai service terpisah.
+- **PHP** — boundary source untuk pengembangan berikutnya; belum menjadi endpoint Vercel.
 
-## Admin
-
-Pintu masuk publik adalah `/admin`, tetapi URL tersebut **bukan mekanisme autentikasi**. Dashboard memanggil Account API dan backend memeriksa session serta role `ADMIN` sebelum operasi administratif diterima.
-
-Operasi yang tersedia mencakup:
-
-- melihat ringkasan jumlah record;
-- melihat daftar sheet yang diizinkan;
-- mengubah status akun menjadi `ACTIVE` atau `SUSPENDED`;
-- mencabut sesi pengguna;
-- menghapus akun dan data laporan terkait;
-- menghapus laporan berdasarkan Report ID;
-- mengekspor data yang sedang ditampilkan ke CSV;
-- membuka Question Bank Admin terpisah.
-
-Jangan memasukkan admin key, password, token, atau Script Property secret ke frontend atau GitHub.
-
-## Quality Checks
-
-Repository memiliki pemeriksaan otomatis untuk mengurangi risiko link/path/config yang rusak:
-
-```bash
-node tests/run-tests.js
-node tests/check-repository.js
-php -l backend/php/bootstrap.php
-```
-
-GitHub Actions menjalankan pemeriksaan tersebut pada push ke `main` dan pull request ke `main`, termasuk syntax check untuk JavaScript frontend, Vercel Functions, Apps Script, dan scaffold PHP. CodeQL melakukan analisis keamanan JavaScript, sedangkan Dependabot memantau GitHub Actions.
-
-`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js`, pola secret umum di runtime config, konsistensi endpoint backend, wiring halaman verifikasi, admin backend, route `/admin`, dokumentasi UI, asset SEO, struktur backend, dan boundary PHP.
-
-> **Catatan:** CI membuktikan konsistensi source code dan struktur repository. CI tidak dapat membuktikan deployment Google Apps Script, Google Sheets, Vercel, PDF, kamera, atau browser secara nyata tanpa pengujian integrasi/e2e terpisah.
-
-## Menjalankan Secara Lokal
-
-Karena proyek ini bersifat statis, tidak diperlukan build system untuk menjalankan versi dasarnya.
-
-Untuk pengujian logika:
-
-```bash
-node tests/run-tests.js
-```
-
-Untuk pemeriksaan struktur dan tautan lokal:
-
-```bash
-node tests/check-repository.js
-```
-
-Untuk pemeriksaan scaffold PHP:
-
-```bash
-php -l backend/php/bootstrap.php
-```
-
-Untuk penggunaan melalui browser, jalankan proyek menggunakan static server sederhana atau hosting statis seperti Vercel atau Netlify.
+Apps Script yang memiliki `doGet`/`doPost` sendiri tetap dideploy sebagai project Web App terpisah. Source-nya boleh berada dalam satu folder GitHub agar mudah dirawat.
 
 ## Konfigurasi
 
-Engine utama berada di `js/script.js`. Endpoint dan tautan publik deployment berada di `js/runtime-config.js`.
+Endpoint publik dipusatkan di `js/runtime-config.js`. File tersebut boleh berisi URL Web App dan link publik, tetapi **tidak boleh berisi secret**.
 
-`runtime-config.js` hanya boleh berisi informasi yang memang aman terlihat oleh publik, seperti URL Web App, Formspree, Saweria, dan URL publik Account API.
-
-**Jangan pernah menaruh API key, token bot, password, `SPREADSHEET_ID`, atau secret lain di file JavaScript frontend.**
-
-### Shared backend security secret
-
-Gateway Vercel memakai environment variable `TA_ASSESS_SERVER_SECRET`. Backend Google Apps Script memakai Script Property `TA_SERVER_SHARED_SECRET`. **Nilai rahasianya harus sama**, tetapi kedua nama variabel tetap berbeda sesuai runtime masing-masing.
-
-Contoh konfigurasi dokumentasi tersedia di `.env.example`. File tersebut hanya berisi placeholder dan tidak boleh diisi dengan nilai produksi lalu di-commit.
-
-Vercel environment variables tidak dapat diverifikasi dari source GitHub. Setelah perubahan konfigurasi, periksa Project Settings → Environment Variables di Vercel dan pastikan `TA_ASSESS_SERVER_SECRET` tersedia untuk environment deployment yang digunakan.
-
-## Backend Google Sheets
-
-Backend utama menyiapkan:
+Shared secret submission menggunakan dua nama sesuai runtime:
 
 ```text
-Results
-Dimension Scores
-Verification
-Events
-Assessments
-Analytics
-Config
+Vercel:       TA_ASSESS_SERVER_SECRET
+Apps Script:  TA_SERVER_SHARED_SECRET
 ```
 
-Backend akun menyiapkan:
+Nilainya harus sama persis. Nilai produksi hanya disimpan di Vercel Environment Variables dan Apps Script Script Properties.
 
-```text
-Accounts
-Sessions
-Security Events
-User Reports
+`CONFIG.ACCOUNT_API` dibiarkan kosong sampai Account Web App benar-benar dideploy. Jangan menebak URL deployment.
+
+## Google Apps Script
+
+Source utama berada di `backend/apps-script/`:
+
+- `results-backend.gs` — hasil, verifikasi, dan submission;
+- `account-backend.gs` — akun dan operasi admin;
+- `question-bank-backend.gs` — Question Bank;
+- `index.html` — editor Question Bank;
+- `maintenance.gs` — audit dan recovery workbook;
+- `personality-30-seed.gs` — seed personality pilot.
+
+Question Bank backend memanggil editor dengan:
+
+```javascript
+HtmlService.createHtmlOutputFromFile('index')
 ```
 
-Backend tidak dirancang untuk menyimpan jawaban mentah peserta. Modul akun juga tidak menyimpan password plaintext atau token sesi plaintext.
+Jadi nama file editor **harus `index.html`** di dalam project Apps Script Question Bank.
 
-Mode verifikasi laporan dapat menggunakan signature HMAC-SHA256 jika `TA_VERIFY_SECRET` dikonfigurasi pada Script Properties.
+## Quality checks
 
-### Account API
+Jalankan:
 
-Account API dibuat sebagai deployment Google Apps Script terpisah agar backend asesmen utama tetap stabil. Keduanya dapat menunjuk ke Spreadsheet yang sama melalui Script Property `SPREADSHEET_ID`.
-
-Setelah `backend/apps-script/account-backend.gs` dideploy sebagai Web App, URL `/exec` deployment diisi ke:
-
-```js
-CONFIG.ACCOUNT_API = 'https://script.google.com/macros/s/.../exec';
+```bash
+node tests/run-tests.js
+node tests/check-repository.js
+php -l backend/php/bootstrap.php
 ```
 
-Nilai tersebut bersifat publik sebagai endpoint aplikasi; secret tetap berada di Script Properties.
+GitHub Actions juga menjalankan pemeriksaan source untuk JavaScript, Vercel Functions, Apps Script, dan scaffold PHP.
 
-Detail keamanan tersedia di [`docs/ACCOUNT-SECURITY.md`](docs/ACCOUNT-SECURITY.md).
+CI hanya membuktikan konsistensi source dan struktur repository. CI tidak membuktikan deployment Vercel, Google Apps Script, Google Sheets, PDF, kamera, atau browser e2e.
 
-## SEO dan Discoverability
+## Dokumentasi teknis
 
-Website sekarang memiliki metadata description, Open Graph dasar, structured data `WebApplication`, favicon, web manifest, crawler directives, dan halaman 404. Resource CSS/JS tetap dapat dirayapi agar mesin pencari dapat merender halaman dengan benar.
+- [Dokumentasi publik](docs.html)
+- [Assessment](docs/assessment/)
+- [Security](docs/security/)
+- [Development](docs/development/)
+- [Deployment](docs/deployment/)
+- [Testing](docs/testing/)
 
-Sitemap XML sengaja belum ditambahkan sampai domain publik Vercel atau custom domain yang pasti diketahui. Setelah domain final tersedia, tambahkan `sitemap.xml` dengan URL absolut domain tersebut dan submit sitemap ke layanan webmaster yang digunakan.
-
-SEO tidak dapat menjamin posisi hasil pencarian. Discoverability tetap bergantung pada crawling, kualitas konten, reputasi domain, dan proses indexing masing-masing mesin pencari.
-
-## Batasan Penting
+## Batasan penting
 
 - Bukan alat diagnosis psikologis.
 - Bukan pengganti konsultasi profesional.
-- Instrumen saat ini belum diklaim tervalidasi secara psikometrik.
-- Skor 0–100 yang digunakan aplikasi bersifat relatif terhadap rentang skala, **bukan persentil populasi**.
-- Insight dan rekomendasi bersifat rule-based dan ditujukan untuk eksplorasi, bukan keputusan deterministik mengenai seseorang.
-- Google Sheets adalah data store ringan untuk tahap development/pilot, bukan database autentikasi khusus berskala tinggi.
-- Modul akun tidak melakukan identifikasi biometrik dan tidak melakukan surveillance terhadap gerakan pengguna.
-- Audit aktivitas hanya mencatat event minimum yang diperlukan untuk integritas alur aplikasi.
-
-## Status Pengembangan
-
-Proyek ini masih dalam tahap pengembangan. Lulusnya automated test tidak otomatis berarti seluruh aplikasi telah siap untuk penggunaan produksi. Pengujian browser, mobile, PDF, hosting, integrasi Google Apps Script, keamanan deployment, kamera, aksesibilitas, dan SEO indexing tetap diperlukan sebelum rilis publik.
+- Instrumen belum diklaim tervalidasi secara psikometrik.
+- Skor 0–100 bersifat relatif terhadap skala aplikasi, bukan persentil populasi.
+- Smart Insight dan rekomendasi bersifat rule-based untuk eksplorasi.
+- Google Sheets digunakan sebagai data store ringan untuk tahap development/pilot.
 
 ## Lisensi
 
 TA Assess dirilis di bawah **MIT License**. Lihat [`LICENSE`](LICENSE).
-
-Lisensi perangkat lunak tidak memberikan hak untuk mengklaim hasil TA Assess sebagai diagnosis, sertifikasi psikologis, atau validasi profesional.
 
 ## Pengembang
 
