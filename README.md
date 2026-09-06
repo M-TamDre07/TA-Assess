@@ -22,11 +22,12 @@ Instrumen yang tersedia saat ini berstatus **DEMO** atau **PILOT**. Status terse
 - Report ID yang konsisten di alur hasil
 - Generate laporan PDF melalui `html2pdf.js`
 - QR code untuk halaman verifikasi
-- Demo verification berbasis browser/localStorage
-- Rule-based Insight Assistant
-- Recommendation engine berbasis aturan
-- Integrasi Google Sheets opsional melalui Google Apps Script
+- Backend verification melalui Google Apps Script
+- Google Sheets sebagai penyimpanan terstruktur dengan beberapa sheet otomatis
+- Statistik profil: mean, median, standard deviation, min, max, range, completion rate, dan response time
+- Rule-based Smart Insight dan recommendation engine
 - Validasi konsistensi metadata dan jumlah soal
+- Konfigurasi publik dipisahkan dari source engine melalui `js/runtime-config.js`
 
 ## Instrumen Saat Ini
 
@@ -51,6 +52,7 @@ Informasi metodologi dan batasan penggunaan tersedia di:
 ```text
 TA-Assess/
 ├── index.html
+├── test.html
 ├── result.html
 ├── verify.html
 ├── css/
@@ -60,6 +62,7 @@ TA-Assess/
 │   ├── insight-engine.js
 │   ├── recommendation-engine.js
 │   ├── result-engine.js
+│   ├── runtime-config.js
 │   ├── script.js
 │   └── test-engine.js
 ├── tests/
@@ -71,12 +74,14 @@ TA-Assess/
 │   ├── PRIVACY.md
 │   ├── SETUP.md
 │   └── TEST_REPORT.md
+├── assets/
+│   └── README.md
 ├── .gitignore
 ├── LICENSE
 └── README.md
 ```
 
-> **Catatan:** alur asesmen membutuhkan `test.html`. File tersebut belum terlihat pada branch `main` saat dokumentasi ini diperbarui, sehingga deployment tidak boleh dianggap lengkap sebelum file tersebut tersedia dan diuji.
+`test.html` sekarang tersedia di branch `main`. Repository berisi source backend `code.gs` sebagai referensi/version control; kode yang dieksekusi tetap berada pada project Google Apps Script yang terhubung dengan Spreadsheet.
 
 ## Menjalankan Secara Lokal
 
@@ -92,11 +97,31 @@ Untuk penggunaan melalui browser, jalankan proyek menggunakan static server sede
 
 ## Konfigurasi
 
-Konfigurasi frontend berada di `js/script.js` dan sengaja menggunakan placeholder kosong.
+Engine utama berada di `js/script.js`. Endpoint dan tautan publik deployment berada di `js/runtime-config.js`.
 
-**Jangan pernah menaruh API key, token bot, password, atau secret lain di file JavaScript frontend.** Frontend dapat dilihat oleh pengguna.
+`runtime-config.js` hanya boleh berisi informasi yang memang aman terlihat oleh publik, seperti URL Web App, Formspree, dan Saweria.
 
-Google Apps Script untuk penyimpanan opsional tersedia di `google-apps-script/code.gs`.
+**Jangan pernah menaruh API key, token bot, password, atau secret lain di file JavaScript frontend.**
+
+Backend Google Apps Script tersedia di `google-apps-script/code.gs`. File tersebut adalah source code/version-control untuk backend, bukan file yang dijalankan langsung oleh GitHub Pages/Vercel.
+
+## Backend Google Sheets
+
+Google Apps Script menyiapkan beberapa sheet secara otomatis untuk memisahkan fungsi data:
+
+```text
+Results
+Dimension Scores
+Verification
+Events
+Assessments
+Analytics
+Config
+```
+
+Backend tidak dirancang untuk menyimpan jawaban mentah peserta. Data yang dikirim berfokus pada metadata asesmen dan skor dimensi yang diperlukan untuk hasil serta analitik teknis.
+
+Mode verifikasi dapat menggunakan signature HMAC-SHA256 jika `TA_VERIFY_SECRET` dikonfigurasi pada Script Properties.
 
 ## Batasan Penting
 
@@ -104,13 +129,13 @@ Google Apps Script untuk penyimpanan opsional tersedia di `google-apps-script/co
 - Bukan pengganti konsultasi profesional.
 - Instrumen saat ini belum diklaim tervalidasi secara psikometrik.
 - Skor 0–100 yang digunakan aplikasi bersifat relatif terhadap rentang skala, **bukan persentil populasi**.
-- Demo verification berbasis localStorage hanya berlaku pada browser yang menyimpan data tersebut dan bukan sistem verifikasi anti-pemalsuan produksi.
 - Insight dan rekomendasi bersifat rule-based dan ditujukan untuk eksplorasi, bukan keputusan deterministik mengenai seseorang.
-- Integrasi eksternal seperti Google Sheets, Telegram, feedback, dan donasi harus dikonfigurasi serta diuji secara terpisah.
+- Integrasi Google Sheets, Telegram, feedback, dan donasi harus dikonfigurasi serta diuji secara terpisah.
+- URL Web App Google Apps Script bersifat publik sebagai endpoint aplikasi; secret backend tidak boleh dimasukkan ke frontend.
 
 ## Status Pengembangan
 
-Proyek ini masih dalam tahap pengembangan. Lulusnya automated test tidak otomatis berarti seluruh aplikasi telah siap untuk penggunaan produksi. Pengujian browser, mobile, PDF, hosting, integrasi eksternal, keamanan deployment, dan aksesibilitas tetap diperlukan sebelum rilis publik.
+Proyek ini masih dalam tahap pengembangan. Lulusnya automated test tidak otomatis berarti seluruh aplikasi telah siap untuk penggunaan produksi. Pengujian browser, mobile, PDF, hosting, integrasi Google Apps Script, keamanan deployment, dan aksesibilitas tetap diperlukan sebelum rilis publik.
 
 ## Lisensi
 
