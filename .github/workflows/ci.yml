@@ -32,6 +32,7 @@ jobs:
       - name: Syntax check frontend JavaScript
         run: |
           node --check js/assessments-data.js
+          node --check js/account.js
           node --check js/insight-engine.js
           node --check js/recommendation-engine.js
           node --check js/result-engine.js
@@ -40,4 +41,6 @@ jobs:
           node --check js/test-engine.js
 
       - name: Syntax check Apps Script source
-        run: node --check google-apps-script/code.gs
+        run: |
+          node --check google-apps-script/code.gs
+          node --check google-apps-script/account.gs
