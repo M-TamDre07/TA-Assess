@@ -1,47 +1,75 @@
-# TEST REPORT — TA Assess V2
+# TEST REPORT — TA Assess
 
-**Tanggal pengujian:** 2026-09-06 05:12 UTC (aktual, dari `date -u`)
-**Cara reproduksi:** `node tests/run-tests.js`
-**Hasil aktual:** `TOTAL: 40 | PASSED: 40 | FAILED: 0`
+**Status:** Development / Demo
+**Reproducible command:** `node tests/run-tests.js`
 
-Laporan ini hanya mencantumkan apa yang benar-benar diuji dan hasil aslinya. Tidak ada tanggal atau hasil yang dikarang.
+## Ringkasan
 
-## Apa yang diuji secara otomatis (`tests/run-tests.js`)
+Repository ini memiliki automated test suite untuk logika inti. Hasil **40 PASS / 0 FAIL** yang tercantum pada versi laporan sebelumnya dipertahankan sebagai **hasil pengujian yang dilaporkan oleh versi proyek sebelumnya**, bukan sebagai pengujian yang saya jalankan ulang pada sesi ini.
 
-| # | Yang diuji | Hasil |
-|---|---|---|
-| 1 | `metadata.items` sama dengan jumlah soal aktual, untuk semua 3 asesmen | PASS |
-| 2 | `checkAssessmentData()` tidak menghasilkan error konsistensi data | PASS |
-| 3 | Scoring dasar (mean dari jawaban penuh) | PASS |
-| 4 | Reverse scoring benar (formula `min+max-score`, skala 1-5: 1↔5, 2↔4, 3=3) | PASS |
-| 5 | Jawaban null diabaikan dari perhitungan (bukan dihitung sebagai 0) | PASS |
-| 6 | Semua jawaban kosong → `meanScore` null, bukan NaN; `normalizedScore` tetap finite; `rawScore` 0 | PASS |
-| 7 | Jawaban di luar rentang (mis. nilai 9 pada skala 1-5) di-skip, tidak menghasilkan NaN | PASS |
-| 8 | `classifyScore` selalu menghasilkan salah satu dari low/moderate/high untuk input valid | PASS |
-| 9 | `countUnanswered` menghitung jumlah soal kosong dengan akurat | PASS |
-| 10 | `generateReportId` menghasilkan ID unik antar-panggilan dengan format konsisten | PASS |
-| 11 | `getInterpretation` fallback ke pesan default saat level/guide tidak ditemukan | PASS |
-| 12 | Recommendation engine mengembalikan minimal satu saran untuk profil tinggi | PASS |
-| 13 | Insight engine menghasilkan ringkasan tanpa bahasa deterministik/diagnostik ("pasti", "diagnosis", "gangguan mental") | PASS |
+Sebelum menyatakan proyek siap rilis, jalankan kembali:
 
-**Catatan jujur:** test #6 sengaja memicu satu baris `console.error('[TA ASSESS SCORING ERROR] ...')` di stderr saat menjalankan test #7 (input sengaja di luar rentang) — itu adalah perilaku yang **diharapkan** (engine mencatat data invalid), bukan kegagalan.
+```bash
+node tests/run-tests.js
+```
 
-## Pemeriksaan manual (non-otomatis, dilakukan saat sesi ini)
+## Cakupan automated test
 
-| Pemeriksaan | Metode | Hasil |
-|---|---|---|
-| Syntax semua file `.js` | `node --check` per file | Semua OK (6 file) |
-| Semua path `href`/`src` di 4 file HTML menunjuk ke file yang benar-benar ada | Skrip shell pencocokan path vs filesystem | Semua OK |
-| Struktur dasar HTML (satu `<html>`, `<body>` per file, DOCTYPE ada) | Hitung tag per file | Semua OK (4 file) |
+Suite saat ini dirancang untuk memeriksa:
 
-## Yang BELUM diuji (harus dilakukan manual oleh Anda sebelum menganggap "siap pakai")
+- Konsistensi `metadata.items` dengan jumlah soal aktual.
+- `checkAssessmentData()`.
+- Scoring dasar.
+- Reverse scoring skala 1–5.
+- Penanganan `null` tanpa menghasilkan `NaN`.
+- Penanganan nilai di luar rentang.
+- Klasifikasi level skor.
+- Penghitungan soal yang belum dijawab.
+- Format dan keunikan `reportId`.
+- Fallback interpretasi.
+- Recommendation engine.
+- Insight engine dan pencegahan bahasa deterministik/diagnostik.
 
-- Rendering visual di browser sungguhan (Chrome/Firefox/Safari) — sesi ini tidak menjalankan browser.
-- Tampilan mobile sungguhan di perangkat fisik.
-- Download PDF sungguhan (html2pdf.js dimuat dari CDN — perlu koneksi internet saat digunakan).
-- Pengiriman data ke Google Sheets sungguhan (perlu deployment Apps Script milik Anda sendiri, lihat `docs/SETUP.md`).
-- Uji aksesibilitas (screen reader, kontras warna) belum dijalankan dengan tools khusus.
+## Static audit repository saat ini
 
-## Kesimpulan
+Pada pemeriksaan struktur GitHub terakhir:
 
-Logika inti (scoring, validasi data, ID generation, recommendation, insight) diverifikasi otomatis dan **lulus semua test yang ada**. Ini **tidak sama dengan** "production ready" secara menyeluruh — verifikasi visual/browser dan integrasi eksternal (Google Sheets, hosting) masih perlu pengecekan manual oleh Anda sesuai `docs/SETUP.md`.
+- `index.html` tersedia.
+- `result.html` tersedia.
+- `verify.html` tersedia.
+- `css/styles.css` tersedia.
+- Engine JavaScript berada di `js/`.
+- Automated test runner berada di `tests/run-tests.js`.
+- Google Apps Script berada di `google-apps-script/code.gs`.
+- Dokumentasi berada di `docs/`.
+- **`test.html` belum tersedia pada branch `main` saat laporan ini diperbarui.** Alur `index.html → test.html → result.html` karena itu belum lengkap di repository GitHub.
+- Folder `assets/` dan isinya juga belum terlihat pada branch `main` saat audit ini dilakukan.
+
+## Yang belum dapat dinyatakan lulus
+
+Hal berikut memerlukan pengujian nyata sebelum rilis publik:
+
+- Rendering browser (Chrome/Firefox/Edge/Safari).
+- Responsiveness pada perangkat mobile.
+- Alur lengkap `index.html → test.html → result.html → verify.html`.
+- Generate PDF melalui CDN.
+- QR code dan halaman verifikasi.
+- Penyimpanan Google Sheets setelah deployment Apps Script.
+- Aksesibilitas dan keyboard navigation.
+- Security review pada konfigurasi hosting dan endpoint eksternal.
+
+## Catatan penting
+
+Lulus automated test **tidak sama dengan** `production ready`. Automated tests hanya memberikan bukti untuk perilaku yang memang diuji. Status instrumen juga tetap mengikuti dokumentasi metodologi dan tidak boleh dipresentasikan sebagai validasi psikometrik profesional.
+
+## Release gate
+
+Sebelum rilis publik, minimal pastikan:
+
+1. `test.html` sudah ada di repository.
+2. Semua `href` dan `src` mengarah ke file yang benar.
+3. `node tests/run-tests.js` lulus pada checkout terbaru.
+4. Alur asesmen diuji langsung di browser.
+5. PDF dan QR diuji.
+6. Integrasi eksternal diuji hanya setelah endpoint dikonfigurasi.
+7. README, metodologi, privacy, dan license sesuai dengan kemampuan aplikasi sebenarnya.
