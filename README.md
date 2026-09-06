@@ -4,7 +4,7 @@
 
 **TA Assess** adalah platform web untuk **self-assessment**, eksplorasi diri, dan penyajian hasil asesmen terstruktur yang dikembangkan oleh **Tama Andrea Studio**.
 
-> **Status proyek: Development / Demo**
+> **Status proyek: Development / Pilot**
 >
 > TA Assess bukan lembaga psikologi. Hasil asesmen adalah hasil self-assessment dan **bukan diagnosis psikologis, sertifikat psikologi, atau pengganti pemeriksaan oleh Psikolog**.
 
@@ -31,71 +31,85 @@ Instrumen yang tersedia saat ini berstatus **DEMO** atau **PILOT**. Status terse
 - Validasi konsistensi metadata dan jumlah soal
 - Konfigurasi publik dipisahkan dari source engine melalui `js/runtime-config.js`
 - Modul akun terpisah dengan password hashing, session expiry, lockout, dan audit metadata minimum
-- Normalisasi nama tampilan untuk mengurangi typo sederhana seperti spasi ganda/karakter tidak perlu
-- Audit aktivitas asesmen yang tidak mencatat password, token, atau jawaban mentah
+- Panel admin berbasis role dengan listing data, perubahan status akun, pencabutan sesi, penghapusan laporan, dan ekspor data tampilan
+- Pusat dokumentasi UI untuk privasi, metodologi, keamanan akun, setup backend, dan kontribusi
+- Route `/admin` untuk pintu masuk panel administrator
+- SEO metadata, structured data, favicon, web manifest, crawler directives, dan halaman 404
+- GitHub issue/PR templates, Dependabot untuk GitHub Actions, dan CodeQL
 
 ## Instrumen Saat Ini
 
-| ID | Instrumen | Status | Soal | Dimensi |
+| ID | Instrumen | Status | Soal | Struktur |
 |---|---|---:|---:|---:|
-| `PERSONALITY-01` | Big Five Personality — Demo | DEMO | 10 | 5 |
-| `CAREER-01` | Career Interest Exploration — Demo | DEMO | 6 | 6 |
-| `LEARNING-01` | Learning Preferences — Demo | PILOT | 4 | 4 |
+| `PERSONALITY-01` | Big Five Personality: Eksplorasi 30 Soal | PILOT | 30 | 10 single-choice, 10 essay, 10 multi-choice |
+| `CAREER-01` | Eksplorasi Minat Karier | DEMO/PILOT sesuai katalog | mengikuti question bank | mengikuti question bank |
+| `LEARNING-01` | Preferensi Belajar | DEMO/PILOT sesuai katalog | mengikuti question bank | mengikuti question bank |
 
 ### Catatan metodologi
 
-Instrumen di atas merupakan adaptasi non-resmi untuk eksplorasi diri. TA Assess **tidak mengklaim** bahwa instrumen tersebut telah divalidasi secara psikometrik, disertifikasi, atau setara dengan instrumen profesional/komersial tertentu.
+Instrumen di atas merupakan adaptasi untuk eksplorasi diri. TA Assess **tidak mengklaim** bahwa instrumen tersebut telah divalidasi secara psikometrik, disertifikasi, atau setara dengan instrumen profesional/komersial tertentu.
 
 Informasi metodologi dan batasan penggunaan tersedia di:
 
+- [`docs.html`](docs.html)
 - [`docs/ASSESSMENT-METHODOLOGY.md`](docs/ASSESSMENT-METHODOLOGY.md)
 - [`docs/PRIVACY.md`](docs/PRIVACY.md)
 - [`docs/ACCOUNT-SECURITY.md`](docs/ACCOUNT-SECURITY.md)
 - [`docs/SETUP.md`](docs/SETUP.md)
+- [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)
+- [`docs/SECURITY.md`](docs/SECURITY.md)
 
 ## Struktur Repository
 
 ```text
 TA-Assess/
 ├── .github/
-│   └── workflows/
-│       └── ci.yml
+│   ├── ISSUE_TEMPLATE/
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   └── codeql.yml
+│   ├── dependabot.yml
+│   └── pull_request_template.md
 ├── index.html
+├── docs.html
+├── admin.html
+├── admin-dashboard.html
 ├── account.html
 ├── test.html
 ├── result.html
 ├── verify.html
+├── 404.html
+├── favicon.svg
+├── site.webmanifest
+├── robots.txt
+├── vercel.json
 ├── css/
-│   └── styles.css
 ├── js/
-│   ├── account.js
-│   ├── assessments-data.js
-│   ├── insight-engine.js
-│   ├── recommendation-engine.js
-│   ├── result-engine.js
-│   ├── runtime-config.js
-│   ├── script.js
-│   └── test-engine.js
+├── api/
 ├── tests/
-│   ├── check-repository.js
-│   └── run-tests.js
 ├── google-apps-script/
-│   ├── account.gs
-│   └── code.gs
 ├── docs/
-│   ├── ACCOUNT-SECURITY.md
-│   ├── ASSESSMENT-METHODOLOGY.md
-│   ├── PRIVACY.md
-│   ├── SETUP.md
-│   └── TEST_REPORT.md
-├── assets/
-│   └── README.md
-├── .gitignore
-├── LICENSE
 └── README.md
 ```
 
 `google-apps-script/code.gs` disimpan di repository sebagai **source/version-control**. `google-apps-script/account.gs` adalah backend akun terpisah yang dapat memakai Spreadsheet yang sama. Kode yang dieksekusi tetap berada pada project Google Apps Script yang telah dideploy.
+
+## Admin
+
+Pintu masuk publik adalah `/admin`, tetapi URL tersebut **bukan mekanisme autentikasi**. Dashboard memanggil Account API dan backend memeriksa session serta role `ADMIN` sebelum operasi administratif diterima.
+
+Operasi yang tersedia mencakup:
+
+- melihat ringkasan jumlah record;
+- melihat daftar sheet yang diizinkan;
+- mengubah status akun menjadi `ACTIVE` atau `SUSPENDED`;
+- mencabut sesi pengguna;
+- menghapus akun dan data laporan terkait;
+- menghapus laporan berdasarkan Report ID;
+- mengekspor data yang sedang ditampilkan ke CSV;
+- membuka Question Bank Admin terpisah.
+
+Jangan memasukkan admin key, password, token, atau Script Property secret ke frontend atau GitHub.
 
 ## Quality Checks
 
@@ -108,11 +122,11 @@ node --check google-apps-script/code.gs
 node --check google-apps-script/account.gs
 ```
 
-GitHub Actions menjalankan pemeriksaan tersebut pada setiap push ke `main` dan setiap pull request ke `main`, termasuk syntax check untuk JavaScript frontend dan source Apps Script.
+GitHub Actions menjalankan pemeriksaan tersebut pada push ke `main` dan pull request ke `main`, termasuk syntax check untuk JavaScript frontend dan source Apps Script. CodeQL melakukan analisis keamanan JavaScript, sedangkan Dependabot memantau GitHub Actions.
 
-`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js` pada halaman aplikasi, pola secret umum di runtime config, serta wiring halaman verifikasi ke backend.
+`tests/check-repository.js` memeriksa file wajib, referensi lokal `href/src`, keberadaan `runtime-config.js`, pola secret umum di runtime config, wiring halaman verifikasi, admin backend, route `/admin`, dokumentasi UI, dan asset SEO.
 
-> **Catatan:** CI membuktikan konsistensi source code dan struktur repository. CI tidak dapat membuktikan deployment Google Apps Script, Google Sheets, Vercel, PDF, atau browser secara nyata tanpa pengujian integrasi/e2e terpisah.
+> **Catatan:** CI membuktikan konsistensi source code dan struktur repository. CI tidak dapat membuktikan deployment Google Apps Script, Google Sheets, Vercel, PDF, kamera, atau browser secara nyata tanpa pengujian integrasi/e2e terpisah.
 
 ## Menjalankan Secara Lokal
 
@@ -130,13 +144,13 @@ Untuk pemeriksaan struktur dan tautan lokal:
 node tests/check-repository.js
 ```
 
-Untuk penggunaan melalui browser, jalankan proyek menggunakan static server sederhana atau hosting statis seperti GitHub Pages, Vercel, atau Netlify.
+Untuk penggunaan melalui browser, jalankan proyek menggunakan static server sederhana atau hosting statis seperti Vercel atau Netlify.
 
 ## Konfigurasi
 
 Engine utama berada di `js/script.js`. Endpoint dan tautan publik deployment berada di `js/runtime-config.js`.
 
-`runtime-config.js` hanya boleh berisi informasi yang memang aman terlihat oleh publik, seperti URL Web App, Formspree, Saweria, dan nantinya URL publik Account API.
+`runtime-config.js` hanya boleh berisi informasi yang memang aman terlihat oleh publik, seperti URL Web App, Formspree, Saweria, dan URL publik Account API.
 
 **Jangan pernah menaruh API key, token bot, password, `SPREADSHEET_ID`, atau secret lain di file JavaScript frontend.**
 
@@ -160,6 +174,7 @@ Backend akun menyiapkan:
 Accounts
 Sessions
 Security Events
+User Reports
 ```
 
 Backend tidak dirancang untuk menyimpan jawaban mentah peserta. Modul akun juga tidak menyimpan password plaintext atau token sesi plaintext.
@@ -180,6 +195,14 @@ Nilai tersebut bersifat publik sebagai endpoint aplikasi; secret tetap berada di
 
 Detail keamanan tersedia di [`docs/ACCOUNT-SECURITY.md`](docs/ACCOUNT-SECURITY.md).
 
+## SEO dan Discoverability
+
+Website sekarang memiliki metadata description, Open Graph dasar, structured data `WebApplication`, favicon, web manifest, crawler directives, dan halaman 404. Resource CSS/JS tetap dapat dirayapi agar mesin pencari dapat merender halaman dengan benar.
+
+Sitemap XML sengaja belum ditambahkan sampai domain publik Vercel atau custom domain yang pasti diketahui. Setelah domain final tersedia, tambahkan `sitemap.xml` dengan URL absolut domain tersebut dan submit sitemap ke layanan webmaster yang digunakan.
+
+SEO tidak dapat menjamin posisi hasil pencarian. Discoverability tetap bergantung pada crawling, kualitas konten, reputasi domain, dan proses indexing masing-masing mesin pencari.
+
 ## Batasan Penting
 
 - Bukan alat diagnosis psikologis.
@@ -193,7 +216,7 @@ Detail keamanan tersedia di [`docs/ACCOUNT-SECURITY.md`](docs/ACCOUNT-SECURITY.m
 
 ## Status Pengembangan
 
-Proyek ini masih dalam tahap pengembangan. Lulusnya automated test tidak otomatis berarti seluruh aplikasi telah siap untuk penggunaan produksi. Pengujian browser, mobile, PDF, hosting, integrasi Google Apps Script, keamanan deployment, dan aksesibilitas tetap diperlukan sebelum rilis publik.
+Proyek ini masih dalam tahap pengembangan. Lulusnya automated test tidak otomatis berarti seluruh aplikasi telah siap untuk penggunaan produksi. Pengujian browser, mobile, PDF, hosting, integrasi Google Apps Script, keamanan deployment, kamera, aksesibilitas, dan SEO indexing tetap diperlukan sebelum rilis publik.
 
 ## Lisensi
 
