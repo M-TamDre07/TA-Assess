@@ -32,57 +32,31 @@
         .consent-item { margin-bottom: 1rem; display: flex; align-items: flex-start; }
         .consent-item input[type="checkbox"] { margin-right: 1rem; margin-top: 0.25rem; cursor: pointer; }
         .consent-item label { cursor: pointer; line-height: 1.6; }
+        .mode-badge{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.16);font-size:.8rem;margin-top:8px}
     </style>
 </head>
 <body>
-    <nav class="navbar" aria-label="Navigasi utama">
-        <div class="nav-container">
-            <div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Platform Self-Assessment</span></div>
-        </div>
-    </nav>
-
+    <nav class="navbar" aria-label="Navigasi utama"><div class="nav-container"><div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Platform Self-Assessment</span></div></div></nav>
     <main class="test-container">
         <section id="consentScreen" class="consent-screen" aria-labelledby="consentTitle">
-            <div class="test-header">
-                <h2 id="consentTitle">Persetujuan Peserta</h2>
-                <p>Sebelum memulai asesmen, silakan baca dan setujui poin-poin berikut.</p>
-                <div id="displayCalibration" class="display-calibration" role="status">Menyesuaikan tampilan...</div>
-            </div>
+            <div class="test-header"><h2 id="consentTitle">Persetujuan Peserta</h2><p>Sebelum memulai asesmen, silakan baca dan setujui poin-poin berikut.</p><div id="displayCalibration" class="display-calibration" role="status">Menyesuaikan tampilan...</div><div id="accessModeBadge" class="mode-badge">Mode akses</div></div>
             <div class="consent-section">
                 <div class="consent-item"><input type="checkbox" id="consent1" required><label for="consent1">Saya telah membaca dan memahami bahwa hasil asesmen ini adalah <strong>self-assessment</strong> dan bukan diagnosis psikologis profesional.</label></div>
                 <div class="consent-item"><input type="checkbox" id="consent2" required><label for="consent2">Saya memahami bahwa hasil ini tidak dimaksudkan sebagai pengganti konsultasi dengan psikolog atau profesional kesehatan mental.</label></div>
                 <div class="consent-item"><input type="checkbox" id="consent3" required><label for="consent3">Saya bersedia menjawab semua pertanyaan dengan jujur dan sesuai dengan kondisi diri saya.</label></div>
                 <div class="consent-item"><input type="checkbox" id="consent4" required><label for="consent4">Saya memahami bahwa pemrosesan data mengikuti konfigurasi penyimpanan yang dijelaskan dalam kebijakan privasi dan setup proyek.</label></div>
-                <div class="warning-text"><strong>Sebelum mulai:</strong> tarik napas sebentar. Tidak ada jawaban yang harus terlihat sempurna. Pilih respons yang paling sesuai dengan diri Anda. Jika perlu, Anda boleh berhenti dan melanjutkan lagi dari perangkat yang sama.</div>
+                <div class="warning-text"><strong>Sebelum mulai:</strong> tarik napas sebentar. Tidak ada jawaban yang harus terlihat sempurna. Pilih respons yang paling sesuai dengan diri Anda. Anda dapat berhenti jika perlu.</div>
                 <button id="startBtn" class="cta-button" onclick="startTest()" disabled>Saya Setuju, Mulai Asesmen</button>
             </div>
         </section>
-
-        <section id="testScreen" class="test-screen" style="display: none;" aria-live="polite">
-            <div class="test-header">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem;">
-                    <div><h3 id="assessmentTitle">Assessment Title</h3></div>
-                    <div class="timer">Waktu Berlalu: <span id="elapsedTime">0:00</span></div>
-                </div>
-                <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
-                <div class="question-number" id="questionNumber">Pertanyaan 1 dari 10</div>
-            </div>
-
-            <div id="calmMessage" class="calm-message" role="status" aria-live="polite"></div>
-            <div id="questionContainer"></div>
-
-            <div class="test-buttons">
-                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Sebelumnya</button>
-                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Selanjutnya →</button>
-                <button class="btn btn-primary" id="submitBtn" onclick="submitTest()" style="display: none;">Selesai &amp; Lihat Hasil</button>
-            </div>
+        <section id="testScreen" class="test-screen" style="display:none" aria-live="polite">
+            <div class="test-header"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:1rem"><div><h3 id="assessmentTitle">Assessment Title</h3></div><div class="timer">Waktu Berlalu: <span id="elapsedTime">0:00</span></div></div><div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div><div class="question-number" id="questionNumber">Pertanyaan 1</div></div>
+            <div id="calmMessage" class="calm-message" role="status" aria-live="polite"></div><div id="questionContainer"></div>
+            <div class="test-buttons"><button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>Sebelumnya</button><button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Selanjutnya</button><button class="btn btn-primary" id="submitBtn" onclick="submitTest()" style="display:none">Selesai dan Lihat Hasil</button></div>
         </section>
-        <div id="loadingScreen" class="loading" style="display: none;" role="status"><p>Memproses hasil asesmen Anda...</p></div>
+        <div id="loadingScreen" class="loading" style="display:none" role="status"><p>Memproses hasil asesmen Anda...</p></div>
     </main>
-
-    <script src="js/assessments-data.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/runtime-config.js"></script>
-    <script src="js/test-engine.js"></script>
+    <script src="js/assessments-data.js"></script><script src="js/script.js"></script><script src="js/runtime-config.js"></script><script src="js/test-engine.js"></script><script src="js/test-access-patch.js"></script>
+    <script>document.addEventListener('DOMContentLoaded',function(){const mode=sessionStorage.getItem('ta_assess_access_mode')||'guest';const el=document.getElementById('accessModeBadge');if(el)el.textContent=mode==='account'?'Mode Akun: hasil disimpan':'Mode Tamu: satu hasil sementara';});</script>
 </body>
 </html>
