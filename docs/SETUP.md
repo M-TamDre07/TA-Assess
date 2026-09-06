@@ -52,7 +52,7 @@ Sangat disarankan untuk mode verifikasi backend.
 
 Gunakan string rahasia yang panjang dan acak. Jangan masukkan secret ini ke repository GitHub atau file frontend.
 
-Jika tersedia, `code.gs` menggunakan HMAC-SHA256 untuk signature laporan. Google Apps Script menyediakan `Utilities.computeHmacSha256Signature()` untuk pembuatan signature berbasis kunci. 
+Jika tersedia, `code.gs` menggunakan HMAC-SHA256 untuk signature laporan. Google Apps Script menyediakan `Utilities.computeHmacSha256Signature()` untuk pembuatan signature berbasis kunci.
 
 Tanpa secret, sistem masih dapat berjalan menggunakan `DEMO-CHECKSUM`, tetapi jangan menganggapnya sebagai tanda tangan anti-pemalsuan produksi.
 
@@ -81,33 +81,23 @@ Setelah deployment, copy URL Web App yang diberikan Google.
 
 Contoh bentuk URL biasanya berakhir dengan `/exec`.
 
-## 5. Hubungkan ke frontend
+## 5. Hubungkan endpoint ke frontend
 
-Buka:
+Konfigurasi publik dipusatkan pada:
 
 ```text
-js/script.js
+js/runtime-config.js
 ```
 
-Cari:
+Isi hanya URL Web App dan tautan publik lain yang memang aman dilihat pengguna:
 
 ```javascript
-const CONFIG = {
-    GOOGLE_SHEETS_API: '',
-    FORMSPREE_LINK: '',
-    SAWERIA_LINK: '',
-    CONTACT_EMAIL: '',
-    TELEGRAM_WEBHOOK_URL: ''
-};
+CONFIG.GOOGLE_SHEETS_API = 'URL_WEB_APP_ANDA';
 ```
 
-Isi hanya URL Web App milik Anda:
+Halaman `index.html`, `test.html`, `result.html`, dan `verify.html` memuat runtime config tersebut. Karena URL Web App memang harus diketahui browser untuk melakukan request, endpoint bukan secret.
 
-```javascript
-GOOGLE_SHEETS_API: 'URL_WEB_APP_ANDA'
-```
-
-Jangan isi token Telegram di file ini.
+**Jangan pernah menaruh API key, `TELEGRAM_BOT_TOKEN`, password, atau `TA_VERIFY_SECRET` di frontend.** Secret hanya berada di Script Properties Google Apps Script.
 
 ## 6. Endpoint yang tersedia
 
@@ -126,6 +116,8 @@ GET <WEB_APP_URL>?action=verify&reportId=REPORT_ID
 ```
 
 Endpoint hanya mengembalikan metadata minimum untuk satu laporan.
+
+Halaman `verify.html` menggunakan endpoint ini secara langsung. Jika backend belum dapat dihubungi, halaman menampilkan status error dan tidak berpura-pura bahwa laporan terverifikasi.
 
 Jangan membuat endpoint publik yang mengembalikan seluruh isi `Results` atau `Dimension Scores`.
 
@@ -220,73 +212,32 @@ TA Assess
    ↓
 Google Apps Script
    ↓
-Telegram Bot API
+Google Sheets
+   └──→ Telegram (opsional, metadata non-sensitif)
 ```
 
-Token disimpan di **Script Properties**, bukan di frontend.
+Token bot dan chat ID hanya berada di Script Properties.
 
-## 11. Testing
+## 11. Checklist setelah deployment
 
-Jalankan automated test frontend:
+Jalankan pemeriksaan source dari repository:
 
 ```bash
 node tests/run-tests.js
+node tests/check-repository.js
+node --check google-apps-script/code.gs
 ```
 
-Kemudian uji backend dengan langkah berikut:
+Kemudian uji deployment secara nyata:
 
-1. Jalankan `setupTAAssess()`.
-2. Buka endpoint `action=health`.
-3. Pastikan seluruh sheet dibuat.
-4. Kirim satu test submission dari frontend.
-5. Pastikan satu baris masuk ke `Results`.
-6. Pastikan baris dimensi masuk ke `Dimension Scores`.
-7. Pastikan metadata masuk ke `Verification`.
-8. Buka endpoint `action=verify&reportId=...`.
-9. Pastikan status dan signature sesuai.
-10. Ulangi dengan Report ID yang sama dan pastikan sistem menolak duplikasi.
+1. Buka `<WEB_APP_URL>?action=health`.
+2. Pastikan response `success: true`.
+3. Pastikan daftar sheet sesuai dengan struktur backend.
+4. Pastikan `verificationMode` menjadi `BACKEND-SIGNED` setelah `TA_VERIFY_SECRET` diatur.
+5. Jalankan satu asesmen demo dari website.
+6. Pastikan satu record masuk ke `Results` dan metadata verifikasi masuk ke `Verification`.
+7. Buka halaman verifikasi menggunakan Report ID tersebut.
+8. Uji ID palsu dan pastikan statusnya `NOT_FOUND`.
+9. Uji QR pada laporan dan pastikan menuju `verify.html?id=...`.
 
-## 12. Privacy dan keamanan
-
-Backend hanya menerima data yang dibutuhkan untuk hasil asesmen.
-
-Jangan mengirim:
-
-- NIK
-- password
-- token API
-- nomor kartu
-- alamat lengkap
-- data sensitif yang tidak diperlukan
-
-Jika suatu saat TA Assess ditingkatkan untuk menyimpan data tambahan, kebijakan privasi harus diperbarui terlebih dahulu.
-
-## 13. Arsitektur ringkas
-
-```text
-Frontend
-  │
-  ├── Assessment Engine
-  ├── Scoring Engine
-  ├── Result Engine
-  └── PDF / QR
-          │
-          ▼
-Google Apps Script Web App
-          │
-    ┌─────┼───────────────┐
-    ▼     ▼       ▼       ▼
- Results  Verify  Events  Analytics
-    │
-    ▼
-Dimension Scores
-
-Opsional:
-    └──────────→ Telegram notification
-```
-
-Google Apps Script menyediakan `Utilities.computeHmacSha256Signature()` sebagai fungsi HMAC-SHA256 untuk signature berbasis kunci; referensi resmi: Google Apps Script Utilities Service.
-
-## 14. Catatan penting
-
-TA Assess saat ini adalah platform **self-assessment** dan bukan lembaga psikologi. Backend ini menangani penyimpanan, integritas data, verifikasi, dan analitik teknis. Ia tidak menjadikan instrumen otomatis tervalidasi secara psikometrik.
+CI GitHub memeriksa struktur source dan link/path lokal secara otomatis. CI **tidak** menggantikan pengujian deployment Google Apps Script, Google Sheets, Vercel, browser, PDF, dan QR secara langsung.
