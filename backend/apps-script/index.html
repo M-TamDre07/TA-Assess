@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TA Assess Question Bank</title>
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --line: #e4e7ec;
+      --primary: #315efb;
+      --danger: #c62828;
+      --ok: #147d52;
+      --shadow: 0 14px 40px rgba(16, 24, 40, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 28px 22px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header .wrap, .wrap { max-width: 1180px; margin: 0 auto; }
+    h1 { margin: 0 0 6px; font-size: 25px; }
+    h2 { margin: 0 0 14px; font-size: 19px; }
+    p { line-height: 1.6; }
+    .muted { color: var(--muted); font-size: 14px; }
+    main { padding: 24px 16px 50px; }
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 18px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+    label { display: block; font-size: 13px; font-weight: 700; margin: 12px 0 6px; }
+    input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid #d0d5dd; border-radius: 10px; font: inherit; background: #ffffff; }
+    textarea { min-height: 105px; resize: vertical; }
+    button { border: 0; border-radius: 10px; padding: 10px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+    .primary { background: var(--primary); color: #ffffff; }
+    .ghost { background: #eef2ff; color: #2946ad; }
+    .danger { background: #fff0f0; color: var(--danger); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .status { padding: 9px 11px; border-radius: 10px; background: #f2f4f7; font-size: 13px; }
+    .status.ok { background: #e9f8f0; color: var(--ok); }
+    .status.err { background: #fff0f0; color: var(--danger); }
+    .question { border: 1px solid var(--line); border-radius: 13px; padding: 14px; margin: 10px 0; background: #ffffff; }
+    .question-title { font-weight: 700; margin-bottom: 8px; }
+    .meta { display: flex; gap: 7px; flex-wrap: wrap; }
+    .tag { font-size: 12px; padding: 5px 8px; border-radius: 999px; background: #f2f4f7; color: #475467; }
+    .empty { padding: 35px; text-align: center; color: var(--muted); }
+    .check { display: flex; gap: 8px; align-items: center; margin: 12px 0; }
+    .check input { width: auto; }
+    .check label { margin: 0; }
+    .section { margin-top: 18px; }
+    .notice { padding: 12px 14px; border-left: 4px solid var(--primary); background: #eef4ff; border-radius: 8px; font-size: 13px; line-height: 1.55; }
+
+    @media (max-width: 850px) {
+      .grid { grid-template-columns: 1fr; }
+      header { position: static; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <h1>TA Assess Question Bank</h1>
+      <div class="muted">Panel kontributor untuk mengelola instrumen, versi soal, dimensi, dan pola respons.</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="notice">
+        Soal dengan kunci terbalik dan pasangan konsistensi boleh dipakai untuk mengurangi pola jawaban otomatis.
+        Hindari membuat soal yang sengaja menipu peserta. Validitas instrumen tetap harus diuji melalui pilot dan analisis psikometri.
+      </div>
+
+      <div class="grid section">
+        <section class="card">
+          <h2>Editor soal</h2>
+
+          <label for="adminKey">Kunci editor</label>
+          <input id="adminKey" type="password" autocomplete="off" placeholder="Masukkan key dari Script Properties">
+
+          <label for="questionId">ID soal</label>
+          <input id="questionId" placeholder="PERSONALITY-01-Q11">
+
+          <label for="assessmentId">ID asesmen</label>
+          <input id="assessmentId" placeholder="PERSONALITY-01">
+
+          <label for="version">Versi</label>
+          <input id="version" value="1.0">
+
+          <label for="orderIndex">Urutan</label>
+          <input id="orderIndex" type="number" value="1">
+
+          <label for="itemType">Jenis soal</label>
+          <select id="itemType">
+            <option value="likert">Likert</option>
+            <option value="single_choice">Pilihan tunggal</option>
+            <option value="multi_choice">Pilihan ganda centang</option>
+            <option value="binary">Dua pilihan</option>
+            <option value="yes_no">Sesuai atau tidak sesuai</option>
+            <option value="essay">Esai</option>
+          </select>
+
+          <label for="text">Pertanyaan</label>
+          <textarea id="text" placeholder="Tulis item secara jelas dan netral."></textarea>
+
+          <label for="dimension">Dimensi</label>
+          <input id="dimension" placeholder="Openness">
+
+          <label for="tags">Tag</label>
+          <input id="tags" placeholder="reverse_keyed, consistency">
+
+          <div class="check">
+            <input id="required" type="checkbox" checked>
+            <label for="required">Wajib dijawab</label>
+          </div>
+
+          <div class="check">
+            <input id="reverse" type="checkbox">
+            <label for="reverse">Kunci terbalik</label>
+          </div>
+
+          <label for="pairId">Pair ID</label>
+          <input id="pairId" placeholder="PAIR-01 bila menjadi pasangan konsistensi">
+
+          <label for="pairRole">Peran pasangan</label>
+          <input id="pairRole" placeholder="A atau B">
+
+          <label for="status">Status</label>
+          <select id="status">
+            <option>DRAFT</option>
+            <option>PILOT</option>
+            <option>ACTIVE</option>
+            <option>ARCHIVED</option>
+          </select>
+
+          <label for="options">Opsi JSON</label>
+          <textarea id="options" placeholder='[{"id":"A","label":"Pilihan A","value":"A"}]'></textarea>
+
+          <label for="scoring">Scoring JSON</label>
+          <textarea id="scoring" placeholder='{"mode":"dimension_map"}'></textarea>
+
+          <label for="notes">Catatan</label>
+          <textarea id="notes" placeholder="Catatan reviewer atau sumber item."></textarea>
+
+          <div class="row section">
+            <button class="primary" type="button" onclick="saveQuestion()">Simpan soal</button>
+            <button class="ghost" type="button" onclick="clearForm()">Bersihkan</button>
+          </div>
+
+          <div id="statusBox" class="status section">Siap.</div>
+        </section>
+
+        <section class="card">
+          <div class="toolbar">
+            <div>
+              <h2>Daftar soal</h2>
+              <div id="count" class="muted">Belum dimuat</div>
+            </div>
+
+            <div class="row">
+              <input id="filterAssessment" placeholder="Filter ID asesmen">
+              <button class="ghost" type="button" onclick="loadQuestions()">Muat</button>
+            </div>
+          </div>
+
+          <div id="list"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let questionCache = [];
+
+    function getElement(id) {
+      return document.getElementById(id);
+    }
+
+    function showStatus(message, type) {
+      const box = getElement('statusBox');
+      box.textContent = message;
+      box.className = 'status section ' + (type || '');
+    }
+
+    function parseJsonField(id, fallback) {
+      const value = getElement(id).value.trim();
+
+      if (!value) {
+        return fallback;
+      }
+
+      try {
+        return JSON.parse(value);
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    function buildQuestionFromForm() {
+      return {
+        questionId: getElement('questionId').value.trim(),
+        assessmentId: getElement('assessmentId').value.trim(),
+        version: getElement('version').value.trim(),
+        orderIndex: Number(getElement('orderIndex').value || 0),
+        itemType: getElement('itemType').value,
+        text: getElement('text').value.trim(),
+        dimension: getElement('dimension').value.trim(),
+        required: getElement('required').checked,
+        reverse: getElement('reverse').checked,
+        pairId: getElement('pairId').value.trim(),
+        pairRole: getElement('pairRole').value.trim(),
+        tags: getElement('tags').value.split(',').map(tag => tag.trim()).filter(Boolean),
+        status: getElement('status').value,
+        options: parseJsonField('options', []),
+        scoring: parseJsonField('scoring', {}),
+        notes: getElement('notes').value.trim()
+      };
+    }
+
+    function saveQuestion() {
+      const question = buildQuestionFromForm();
+
+      if (!question.questionId || !question.assessmentId || !question.text) {
+        showStatus('ID soal, ID asesmen, dan pertanyaan wajib diisi.', 'err');
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(result => {
+          if (result.success) {
+            showStatus('Soal berhasil disimpan.', 'ok');
+            loadQuestions();
+            return;
+          }
+
+          showStatus(result.error || 'Gagal menyimpan.', 'err');
+        })
+        .withFailureHandler(error => {
+          showStatus(error.message || 'Gagal menyimpan.', 'err');
+        })
+        .saveQuestionFromEditor(question, getElement('adminKey').value);
+    }
+
+    function loadQuestions() {
+      const assessmentId = getElement('filterAssessment').value.trim();
+
+      google.script.run
+        .withSuccessHandler(result => {
+          if (!result.success) {
+            showStatus(result.error || 'Gagal memuat.', 'err');
+            return;
+          }
+
+          questionCache = result.questions || [];
+          renderQuestions();
+        })
+        .withFailureHandler(error => {
+          showStatus(error.message || 'Gagal memuat.', 'err');
+        })
+        .listQuestionsForEditor(assessmentId);
+    }
+
+    function renderQuestions() {
+      const list = getElement('list');
+      getElement('count').textContent = questionCache.length + ' soal';
+
+      if (!questionCache.length) {
+        list.innerHTML = '<div class="empty">Belum ada soal untuk filter ini.</div>';
+        return;
+      }
+
+      list.innerHTML = questionCache.map(question => {
+        const reverseTag = question.reverse
+          ? '<span class="tag">kunci terbalik</span>'
+          : '';
+        const pairTag = question.pairId
+          ? '<span class="tag">pasangan ' + escapeHtml(question.pairId) + '</span>'
+          : '';
+
+        return `
+          <div class="question">
+            <div class="question-title">
+              ${escapeHtml(question.order)}. ${escapeHtml(question.text)}
+            </div>
+            <div class="meta">
+              <span class="tag">${escapeHtml(question.questionId)}</span>
+              <span class="tag">${escapeHtml(question.itemType)}</span>
+              <span class="tag">${escapeHtml(question.dimension || 'Tanpa dimensi')}</span>
+              <span class="tag">${escapeHtml(question.status)}</span>
+              ${reverseTag}
+              ${pairTag}
+            </div>
+            <div class="row section">
+              <button class="ghost" type="button" onclick="editQuestion('${encodeURIComponent(question.questionId)}')">Edit</button>
+              <button class="danger" type="button" onclick="archiveQuestion('${encodeURIComponent(question.questionId)}')">Arsipkan</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function editQuestion(encodedId) {
+      const questionId = decodeURIComponent(encodedId);
+      const question = questionCache.find(item => item.questionId === questionId);
+
+      if (!question) {
+        return;
+      }
+
+      getElement('questionId').value = question.questionId || '';
+      getElement('assessmentId').value = question.assessmentId || '';
+      getElement('version').value = question.version || '';
+      getElement('orderIndex').value = question.order || 0;
+      getElement('itemType').value = question.itemType || 'likert';
+      getElement('text').value = question.text || '';
+      getElement('dimension').value = question.dimension || '';
+      getElement('pairId').value = question.pairId || '';
+      getElement('pairRole').value = question.pairRole || '';
+      getElement('status').value = question.status || 'DRAFT';
+      getElement('notes').value = question.notes || '';
+      getElement('required').checked = question.required !== false;
+      getElement('reverse').checked = question.reverse === true;
+      getElement('tags').value = (question.tags || []).join(', ');
+      getElement('options').value = JSON.stringify(question.options || [], null, 2);
+      getElement('scoring').value = JSON.stringify(question.scoring || {}, null, 2);
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function archiveQuestion(encodedId) {
+      if (!confirm('Arsipkan soal ini?')) {
+        return;
+      }
+
+      const questionId = decodeURIComponent(encodedId);
+
+      google.script.run
+        .withSuccessHandler(result => {
+          if (result.success) {
+            showStatus('Soal diarsipkan.', 'ok');
+            loadQuestions();
+            return;
+          }
+
+          showStatus(result.error || 'Gagal mengarsipkan.', 'err');
+        })
+        .withFailureHandler(error => {
+          showStatus(error.message || 'Gagal.', 'err');
+        })
+        .archiveQuestionFromEditor(questionId, getElement('adminKey').value);
+    }
+
+    function clearForm() {
+      getElement('questionId').value = '';
+      getElement('assessmentId').value = '';
+      getElement('version').value = '1.0';
+      getElement('orderIndex').value = '1';
+      getElement('itemType').value = 'likert';
+      getElement('text').value = '';
+      getElement('dimension').value = '';
+      getElement('tags').value = '';
+      getElement('pairId').value = '';
+      getElement('pairRole').value = '';
+      getElement('status').value = 'DRAFT';
+      getElement('options').value = '';
+      getElement('scoring').value = '';
+      getElement('notes').value = '';
+      getElement('required').checked = true;
+      getElement('reverse').checked = false;
+
+      showStatus('Form dibersihkan.');
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[character]));
+    }
+
+    loadQuestions();
+  </script>
+</body>
+</html>
