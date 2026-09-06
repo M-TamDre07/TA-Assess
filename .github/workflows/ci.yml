@@ -44,16 +44,25 @@ jobs:
           node --check js/security-hardening.js
           node --check js/test-access-patch.js
           node --check js/test-engine.js
+          node --check js/client-diagnostics.js
+          node --check js/admin-dashboard.js
 
       - name: Syntax check Vercel Functions
         run: |
           node --check api/question-bank.js
           node --check api/assessment-session.js
           node --check api/assessment-submit.js
+          node --check api/assessment-event.js
+          node --check api/system-health.js
 
       - name: Syntax check Apps Script source
+        shell: bash
         run: |
-          node --check google-apps-script/code.gs
-          node --check google-apps-script/account.gs
-          node --check google-apps-script/question-bank.gs
-          node --check google-apps-script/personality-30-seed.gs
+          set -e
+          for file in backend/apps-script/*.gs; do
+            echo "Checking $file"
+            node --check < "$file"
+          done
+
+      - name: Syntax check PHP scaffold
+        run: php -l backend/php/bootstrap.php

@@ -1,9 +1,24 @@
 const crypto = require('crypto');
 
-const UPSTREAM = 'https://script.google.com/macros/s/AKfycbw1_jurj5YOX_uO5Gyxk4X4FCVkhytFrsruTB5y3zpQHS4qy0euIgyjiPkkYLYt9eRf/exec';
+const UPSTREAM = 'https://script.google.com/macros/s/AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx/exec';
+const RATE_WINDOW_MS = 60 * 1000;
+const MAX_ISSUES_PER_WINDOW = 12;
+const rateBuckets = new Map();
 
 function json(res, status, data) { res.setHeader('Cache-Control', 'no-store'); return res.status(status).json(data); }
 function safe(value, max=120) { return String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g,' ').trim().slice(0,max); }
+function requestKey(req) { return safe(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown',120); }
+function allowIssue(req) {
+  const now = Date.now();
+  const key = requestKey(req);
+  const previous = rateBuckets.get(key) || [];
+  const recent = previous.filter(t => now - t < RATE_WINDOW_MS);
+  if (recent.length >= MAX_ISSUES_PER_WINDOW) { rateBuckets.set(key, recent); return false; }
+  recent.push(now);
+  rateBuckets.set(key, recent);
+  if (rateBuckets.size > 5000) rateBuckets.clear();
+  return true;
+}
 function botRisk(req) {
   const ua=safe(req.headers['user-agent'],240).toLowerCase();
   const signals=[];
@@ -35,6 +50,7 @@ module.exports = async function handler(req,res) {
 
   const secret=process.env.TA_ASSESS_SERVER_SECRET||'';
   if(secret.length<32)return json(res,503,{success:false,error:'Server security secret belum dikonfigurasi.'});
+  if(!allowIssue(req))return json(res,429,{success:false,error:'Terlalu banyak permintaan sesi. Coba lagi sebentar.'});
 
   const assessmentId=safe(req.query?.assessmentId);
   const mode=safe(req.query?.mode||'guest').toLowerCase();
@@ -42,11 +58,12 @@ module.exports = async function handler(req,res) {
   if(!['guest','account'].includes(mode))return json(res,400,{success:false,error:'Mode akses tidak valid.'});
 
   const issuedAt=Math.floor(Date.now()/1000), expiresAt=issuedAt+45*60, sessionId=crypto.randomUUID();
-  const session={sessionId,assessmentId,mode,issuedAt,expiresAt};
+  const uaHash=crypto.createHash('sha256').update(safe(req.headers['user-agent'],300)).digest('hex').slice(0,32);
+  const session={sessionId,assessmentId,mode,issuedAt,expiresAt,uaHash};
   const payload=Buffer.from(JSON.stringify(session)).toString('base64url');
   const signature=crypto.createHmac('sha256',secret).update(payload).digest('base64url');
   const risk=botRisk(req);
   await audit(session,risk);
 
-  return json(res,200,{success:true,securityVersion:'1.1',token:`${payload}.${signature}`,expiresAt:new Date(expiresAt*1000).toISOString(),botRisk:risk.level,botRiskScore:risk.score});
+  return json(res,200,{success:true,securityVersion:'1.2',token:`${payload}.${signature}`,expiresAt:new Date(expiresAt*1000).toISOString(),botRisk:risk.level,botRiskScore:risk.score});
 };

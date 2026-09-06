@@ -10,7 +10,7 @@
  * Assessment answers are never stored here; only report summaries are persisted.
  */
 const ACC={
- VERSION:'2.0.0',PROP_SHEET_ID:'SPREADSHEET_ID',SHEETS:{ACCOUNTS:'Accounts',SESSIONS:'Sessions',SECURITY:'Security Events',REPORTS:'User Reports'},
+ VERSION:'2.0.1',PROP_SHEET_ID:'SPREADSHEET_ID',SHEETS:{ACCOUNTS:'Accounts',SESSIONS:'Sessions',SECURITY:'Security Events',REPORTS:'User Reports'},
  ACCOUNT_HEADERS:['userId','username','usernameNormalized','displayName','displayNameNormalized','passwordSalt','passwordHash','createdAt','lastLoginAt','status','failedAttempts','lockUntil','sessionVersion','lastActivityAt','role'],
  SESSION_HEADERS:['tokenHash','userId','createdAt','expiresAt','revokedAt','lastUsedAt'],
  SECURITY_HEADERS:['timestamp','eventId','eventName','userId','usernameNormalized','success','metadataJson'],
@@ -71,7 +71,22 @@ function myReports_(d){const session=authenticate_(d.token);if(!session.ok)retur
 function myReport_(d){const session=authenticate_(d.token);if(!session.ok)return session;const id=clean_(d.reportId,100),rows=readRows_(ACC.SHEETS.REPORTS);for(let i=1;i<rows.length;i++)if(String(rows[i][0])===id&&String(rows[i][1])===session.userId)return {success:true,report:reportObject_(rows[i],true)};return {success:false,error:'Laporan tidak ditemukan pada akun ini.'};}
 
 function adminOverview_(d){const auth=requireAdmin_(d.token);if(!auth.ok)return auth;const ss=spreadsheet_(),names=['Accounts','Sessions','Security Events','User Reports','Results','Dimension Scores','Verification','Events','Assessments','Analytics','Config','Question Bank','Question Options','Assessment Catalog','Dimension Catalog','Scoring Rules','Question Change Log'],counts={};names.forEach(name=>{const sh=ss.getSheetByName(name);counts[name]=sh?Math.max(0,sh.getLastRow()-1):0;});return {success:true,version:ACC.VERSION,counts,timestamp:new Date().toISOString()};}
-function adminList_(d){const auth=requireAdmin_(d.token);if(!auth.ok)return auth;const allowed=['Accounts','User Reports','Results','Dimension Scores','Verification','Events','Security Events','Sessions'],sheetName=clean_(d.sheet,60);if(allowed.indexOf(sheetName)===-1)return {success:false,error:'Sheet admin tidak diizinkan.'};const sh=spreadsheet_().getSheetByName(sheetName);if(!sh)return {success:true,sheet:sheetName,headers:[],rows:[]};const values=sh.getDataRange().getDisplayValues(),limit=Math.min(200,Math.max(1,Number(d.limit)||50));return {success:true,sheet:sheetName,headers:values[0]||[],rows:values.slice(1).reverse().slice(0,limit)};}
+function adminList_(d){
+ const auth=requireAdmin_(d.token);if(!auth.ok)return auth;
+ const allowed=['Accounts','User Reports','Results','Dimension Scores','Verification','Events','Security Events','Sessions'],sheetName=clean_(d.sheet,60);
+ if(allowed.indexOf(sheetName)===-1)return {success:false,error:'Sheet admin tidak diizinkan.'};
+ const sh=spreadsheet_().getSheetByName(sheetName);if(!sh)return {success:true,sheet:sheetName,headers:[],rows:[]};
+ const values=sh.getDataRange().getDisplayValues(),limit=Math.min(200,Math.max(1,Number(d.limit)||50));
+ if(sheetName==='Accounts'){
+  const fields=[0,1,3,7,8,9,10,11,12,13,14],headers=['userId','username','displayName','createdAt','lastLoginAt','status','failedAttempts','lockUntil','sessionVersion','lastActivityAt','role'];
+  return {success:true,sheet:sheetName,headers,rows:values.slice(1).map(row=>fields.map(i=>row[i]||'')).reverse().slice(0,limit)};
+ }
+ if(sheetName==='Sessions'){
+  const fields=[1,2,3,4,5],headers=['userId','createdAt','expiresAt','revokedAt','lastUsedAt'];
+  return {success:true,sheet:sheetName,headers,rows:values.slice(1).map(row=>fields.map(i=>row[i]||'')).reverse().slice(0,limit)};
+ }
+ return {success:true,sheet:sheetName,headers:values[0]||[],rows:values.slice(1).reverse().slice(0,limit)};
+}
 function adminDeleteReport_(d){const auth=requireAdmin_(d.token);if(!auth.ok)return auth;const reportId=clean_(d.reportId,100);if(!reportId)return {success:false,error:'Report ID wajib diisi.'};let removed=0;removed+=deleteByValue_('User Reports',0,reportId);removed+=deleteByValue_('Results',2,reportId);removed+=deleteByValue_('Dimension Scores',1,reportId);removed+=deleteByValue_('Verification',0,reportId);removed+=deleteByValue_('Events',3,reportId);securityEvent_('admin_delete_report',auth.userId,'',true,{reportId});return {success:true,reportId,removed};}
 function adminDeleteUser_(d){const auth=requireAdmin_(d.token);if(!auth.ok)return auth;const userId=clean_(d.userId,80);if(!userId||userId===auth.userId)return {success:false,error:'User ID tidak valid.'};const removedReports=deleteByValue_('User Reports',1,userId),removedSessions=deleteByValue_('Sessions',1,userId),removedAccount=deleteByValue_('Accounts',0,userId);securityEvent_('admin_delete_user',auth.userId,'',true,{userId,removedReports,removedSessions,removedAccount});return {success:true,userId,removedReports,removedSessions,removedAccount};}
 function adminSetUserStatus_(d){const auth=requireAdmin_(d.token);if(!auth.ok)return auth;const userId=clean_(d.userId,80),status=clean_(d.status,20).toUpperCase();if(['ACTIVE','SUSPENDED'].indexOf(status)<0||!userId||userId===auth.userId)return {success:false,error:'Status atau User ID tidak valid.'};const account=findAccountById_(userId);if(!account)return {success:false,error:'Akun tidak ditemukan.'};account.sheet.getRange(account.index,10).setValue(status);securityEvent_('admin_set_user_status',auth.userId,'',true,{userId,status});return {success:true,userId,status};}

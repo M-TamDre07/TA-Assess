@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const UPSTREAM = 'https://script.google.com/macros/s/AKfycbw1_jurj5YOX_uO5Gyxk4X4FCVkhytFrsruTB5y3zpQHS4qy0euIgyjiPkkYLYt9eRf/exec';
+const UPSTREAM = 'https://script.google.com/macros/s/AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx/exec';
 const ALLOWED = new Set([
   'assessment_session_issued', 'assessment_calibration_passed', 'assessment_calibration_failed',
   'camera_face_check_passed', 'camera_face_check_failed', 'camera_face_check_off_center',
