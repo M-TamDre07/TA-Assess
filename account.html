@@ -10,80 +10,53 @@
     .account-page{min-height:100vh;padding:110px 20px 60px;background:var(--bg,#f5f7fa)}
     .account-shell{max-width:980px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:24px}
     .account-card{background:#fff;border:1px solid #e3e8ee;border-radius:16px;padding:28px;box-shadow:0 10px 30px rgba(20,30,40,.06)}
-    .account-card h1,.account-card h2{margin-top:0;color:#2f4358}
-    .account-card label{display:block;font-weight:600;margin:14px 0 6px}
-    .account-card input{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid #cfd7df;border-radius:10px;font:inherit}
-    .account-card button{margin-top:18px;width:100%;padding:12px 16px;border:0;border-radius:10px;cursor:pointer;font-weight:700}
-    .account-message{margin:14px 0;padding:12px;border-radius:10px;min-height:20px}.account-message:empty{display:none}
-    .account-message.error{background:#fff0f0;color:#9b2226}.account-message.success{background:#edf9f0;color:#246b36}.account-message.warning{background:#fff8e6;color:#805b00}.account-message.loading{background:#eef5ff;color:#245a91}
-    .account-note{font-size:.9rem;color:#687684;line-height:1.6}.name-hint{font-size:.85rem;color:#687684;margin-top:6px}
-    .account-security{grid-column:1/-1}.account-security ul{line-height:1.8}
-    @media(max-width:760px){.account-shell{grid-template-columns:1fr}.account-security{grid-column:auto}}
+    .account-card h1,.account-card h2{margin-top:0;color:#2f4358}.account-card label{display:block;font-weight:600;margin:14px 0 6px}
+    .account-card input{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid #cfd7df;border-radius:10px;font:inherit}.account-card button{margin-top:18px;width:100%;padding:12px 16px;border:0;border-radius:10px;cursor:pointer;font-weight:700}
+    .account-message,.dashboard-message{margin:14px 0;padding:12px;border-radius:10px;min-height:20px}.account-message:empty,.dashboard-message:empty{display:none}.account-message.error,.dashboard-message.error{background:#fff0f0;color:#9b2226}.account-message.success{background:#edf9f0;color:#246b36}.account-message.warning{background:#fff8e6;color:#805b00}.account-message.loading,.dashboard-message.loading{background:#eef5ff;color:#245a91}
+    .account-note{font-size:.9rem;color:#687684;line-height:1.6}.name-hint{font-size:.85rem;color:#687684;margin-top:6px}.account-security{grid-column:1/-1}.account-security ul{line-height:1.8}
+    .history-card{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #e2e7ec;border-radius:12px;padding:13px;margin:10px 0}.history-meta{font-size:.8rem;color:#687684;margin-top:5px;word-break:break-word}.history-button{width:auto!important;margin:0!important;padding:9px 12px!important;background:#3498db;color:#fff;white-space:nowrap}.empty-history{padding:16px;border-radius:10px;background:#f6f8fa;color:#687684;line-height:1.6}
+    .admin-link{display:none}.admin-link.visible{display:block}
+    @media(max-width:760px){.account-shell{grid-template-columns:1fr}.account-security{grid-column:auto}.history-card{align-items:flex-start;flex-direction:column}.history-button{width:100%!important}}
   </style>
 </head>
 <body>
   <nav class="navbar" aria-label="Navigasi utama">
-    <div class="nav-container">
-      <div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Platform Self-Assessment</span></div>
-      <div class="nav-links"><a href="index.html" class="nav-link">Beranda</a><a href="verify.html" class="nav-link">Verifikasi</a></div>
-    </div>
+    <div class="nav-container"><div class="logo"><strong>TA</strong> ASSESS <span class="subtitle">Platform Self-Assessment</span></div><div class="nav-links"><a href="index.html" class="nav-link">Beranda</a><a href="verify.html" class="nav-link">Verifikasi</a></div></div>
   </nav>
 
-  <main class="account-page">
-    <div class="account-shell">
-      <section class="account-card" id="authForms">
-        <h1>Akun TA Assess</h1>
-        <p class="account-note">Akun digunakan untuk mengenali profil pengguna dan menghubungkan aktivitas asesmen tanpa menyimpan jawaban mentah.</p>
-        <div id="accountMessage" class="account-message" aria-live="polite"></div>
+  <main class="account-page"><div class="account-shell">
+    <section class="account-card" id="authForms">
+      <h1>Akun TA Assess</h1><p class="account-note">Akun digunakan untuk mengenali profil pengguna dan menghubungkan ringkasan hasil asesmen tanpa menyimpan jawaban mentah.</p>
+      <div id="accountMessage" class="account-message" aria-live="polite"></div>
+      <h2>Masuk</h2>
+      <form id="loginForm" autocomplete="on"><label for="loginUsername">Username</label><input id="loginUsername" name="username" autocomplete="username" minlength="4" maxlength="32" required><label for="loginPassword">Password</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required><button type="submit">Masuk</button></form>
+      <hr style="margin:28px 0;border:0;border-top:1px solid #e5e9ee">
+      <h2>Daftar</h2>
+      <form id="registerForm" autocomplete="on"><label for="displayName">Nama tampilan</label><input id="displayName" name="name" maxlength="80" autocomplete="name" required><div id="nameHint" class="name-hint">Nama akan dinormalisasi untuk mengurangi spasi ganda atau karakter tidak perlu.</div><label for="registerUsername">Username</label><input id="registerUsername" name="new-username" autocomplete="username" minlength="4" maxlength="32" required><label for="registerPassword">Password</label><input id="registerPassword" name="new-password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required><label for="registerPasswordConfirm">Ulangi password</label><input id="registerPasswordConfirm" name="new-password-confirm" type="password" autocomplete="new-password" minlength="10" maxlength="128" required><button type="submit">Buat Akun</button></form>
+    </section>
 
-        <h2>Masuk</h2>
-        <form id="loginForm" autocomplete="on">
-          <label for="loginUsername">Username</label>
-          <input id="loginUsername" name="username" autocomplete="username" minlength="4" maxlength="32" required>
-          <label for="loginPassword">Password</label>
-          <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
-          <button type="submit">Masuk</button>
-        </form>
+    <section class="account-card" id="loggedInBox" hidden>
+      <h1>Halo, <span id="loggedInName"></span></h1><p class="account-note">Akun aktif pada sesi browser ini.</p><button id="logoutButton" type="button">Keluar</button>
+      <p class="account-note">Sesi memiliki masa berlaku dan dapat berakhir otomatis setelah tidak aktif.</p>
+      <a id="adminShortcut" class="admin-link" href="javascript:void(0)">Panel pengelola</a>
+    </section>
 
-        <hr style="margin:28px 0;border:0;border-top:1px solid #e5e9ee">
+    <section class="account-card"><h2>Hasil Saya</h2><p id="reportCount" class="account-note">Memuat riwayat…</p><div id="dashboardMessage" class="dashboard-message" aria-live="polite"></div><div id="reportHistory"></div></section>
 
-        <h2>Daftar</h2>
-        <form id="registerForm" autocomplete="on">
-          <label for="displayName">Nama tampilan</label>
-          <input id="displayName" name="name" maxlength="80" autocomplete="name" required>
-          <div id="nameHint" class="name-hint">Nama akan dinormalisasi untuk mengurangi spasi ganda/karakter tidak perlu.</div>
-          <label for="registerUsername">Username</label>
-          <input id="registerUsername" name="new-username" autocomplete="username" minlength="4" maxlength="32" required>
-          <label for="registerPassword">Password</label>
-          <input id="registerPassword" name="new-password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required>
-          <label for="registerPasswordConfirm">Ulangi password</label>
-          <input id="registerPasswordConfirm" name="new-password-confirm" type="password" autocomplete="new-password" minlength="10" maxlength="128" required>
-          <button type="submit">Buat Akun</button>
-        </form>
-      </section>
-
-      <section class="account-card" id="loggedInBox" hidden>
-        <h1>Halo, <span id="loggedInName"></span></h1>
-        <p class="account-note">Akun aktif pada sesi browser ini.</p>
-        <button id="logoutButton" type="button">Keluar</button>
-        <p class="account-note">Sesi memiliki masa berlaku dan token sesi tidak disimpan sebagai teks biasa di server.</p>
-      </section>
-
-      <section class="account-card account-security">
-        <h2>Keamanan & Privasi</h2>
-        <ul>
-          <li>Password tidak disimpan dalam bentuk plaintext.</li>
-          <li>Server menyimpan salt dan hasil derivasi hash, bukan password.</li>
-          <li>Token sesi disimpan sebagai hash di backend dan memiliki masa berlaku.</li>
-          <li>Percobaan login gagal berulang memicu lock sementara.</li>
-          <li>Audit aktivitas menyimpan metadata minimum; password, token, dan jawaban mentah tidak dicatat.</li>
-          <li>Fitur “mengenali nama” menggunakan nama tampilan akun, bukan identifikasi biometrik.</li>
-        </ul>
-      </section>
-    </div>
-  </main>
+    <section class="account-card account-security"><h2>Keamanan dan Privasi</h2><ul><li>Password tidak disimpan dalam bentuk plaintext.</li><li>Server menyimpan salt dan hasil derivasi hash, bukan password.</li><li>Token sesi disimpan sebagai hash di backend.</li><li>Percobaan login gagal berulang memicu lock sementara.</li><li>Riwayat akun hanya menyimpan ringkasan hasil, bukan jawaban mentah.</li><li>Fitur mengenali nama menggunakan nama tampilan akun, bukan identifikasi biometrik.</li></ul></section>
+  </div></main>
 
   <script src="js/runtime-config.js"></script>
   <script src="js/account.js"></script>
+  <script src="js/account-dashboard.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const button=document.getElementById('adminShortcut');
+      try{
+        const user=JSON.parse(sessionStorage.getItem('ta_assess_user')||'null');
+        if(user && user.role==='ADMIN' && typeof CONFIG!=='undefined' && CONFIG.ADMIN_URL){button.classList.add('visible');button.href=CONFIG.ADMIN_URL;button.target='_blank';button.rel='noopener noreferrer';}
+      }catch(_){ }
+    });
+  </script>
 </body>
 </html>
