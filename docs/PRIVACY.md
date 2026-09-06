@@ -9,10 +9,12 @@
 ## Kamera dan pemeriksaan wajah
 
 - Kamera hanya digunakan setelah peserta memberikan izin melalui dialog izin kamera dan persetujuan di halaman asesmen.
-- Kamera digunakan untuk pemeriksaan kesiapan lokal. Preview dihentikan setelah pemeriksaan selesai.
+- Untuk asesmen yang menerapkan kebijakan kamera, kamera tetap aktif selama pengerjaan agar pemeriksaan posisi wajah dapat dilakukan secara lokal secara berkala.
+- Preview kamera tidak ditampilkan selama pengerjaan setelah kalibrasi, kecuali browser atau halaman perlu menampilkannya untuk pemeriksaan ulang.
 - TA Assess tidak merekam, mengunggah, atau menyimpan frame kamera maupun template biometrik.
 - Pemeriksaan wajah lokal, jika didukung browser, hanya digunakan untuk melihat apakah satu wajah berada di area kamera. Sistem tidak melakukan pengenalan identitas.
 - Jika peserta tidak memberikan izin kamera, asesmen yang menerapkan kebijakan kamera wajib tidak dapat dimulai.
+- Kamera dihentikan ketika sesi halaman berakhir atau meninggalkan halaman.
 
 ## Data yang TIDAK diminta/dikumpulkan
 
@@ -31,7 +33,7 @@
 - Secret/API key/token server tidak ditempatkan di frontend.
 - Sesi asesmen menggunakan token bertanda tangan di gateway server.
 - Submission hasil dapat diarahkan melalui gateway server sebelum diteruskan ke backend hasil.
-- Deteksi bot, anti-copy, deteksi perpindahan tab, fullscreen, dan sinyal integritas adalah lapisan mitigasi. Tidak ada kontrol browser yang dapat menjamin peserta tidak memanipulasi perangkatnya.
+- Deteksi bot, anti-copy, deteksi perpindahan tab, fullscreen, kamera, dan sinyal integritas adalah lapisan mitigasi. Tidak ada kontrol browser yang dapat menjamin peserta tidak memanipulasi perangkatnya.
 - Metadata keamanan digunakan untuk audit teknis dan tidak boleh diperlakukan sebagai bukti tunggal kecurangan.
 
 ## Yang tidak pernah kami lakukan
