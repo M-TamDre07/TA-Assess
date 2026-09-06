@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Run assessment tests
         run: node tests/run-tests.js
@@ -33,14 +33,25 @@ jobs:
         run: |
           node --check js/assessments-data.js
           node --check js/account.js
+          node --check js/account-dashboard.js
+          node --check js/account-insights.js
+          node --check js/access-control.js
           node --check js/insight-engine.js
           node --check js/recommendation-engine.js
           node --check js/result-engine.js
           node --check js/runtime-config.js
           node --check js/script.js
+          node --check js/security-hardening.js
+          node --check js/test-access-patch.js
           node --check js/test-engine.js
+
+      - name: Syntax check Vercel Functions
+        run: |
+          node --check api/question-bank.js
 
       - name: Syntax check Apps Script source
         run: |
           node --check google-apps-script/code.gs
           node --check google-apps-script/account.gs
+          node --check google-apps-script/question-bank.gs
+          node --check google-apps-script/personality-30-seed.gs
