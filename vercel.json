@@ -1,7 +1,29 @@
 {
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/admin/", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/pages/admin.html" },
+    { "source": "/admin/", "destination": "/pages/admin.html" },
+    { "source": "/admin.html", "destination": "/pages/admin.html" },
+    { "source": "/admin-dashboard", "destination": "/pages/admin-dashboard.html" },
+    { "source": "/admin-dashboard.html", "destination": "/pages/admin-dashboard.html" },
+    { "source": "/account", "destination": "/pages/account.html" },
+    { "source": "/account.html", "destination": "/pages/account.html" },
+    { "source": "/account-results", "destination": "/pages/account-results.html" },
+    { "source": "/account-results.html", "destination": "/pages/account-results.html" },
+    { "source": "/account-insights", "destination": "/pages/account-insights.html" },
+    { "source": "/account-insights.html", "destination": "/pages/account-insights.html" },
+    { "source": "/docs", "destination": "/pages/docs.html" },
+    { "source": "/docs.html", "destination": "/pages/docs.html" },
+    { "source": "/result", "destination": "/pages/result.html" },
+    { "source": "/result.html", "destination": "/pages/result.html" },
+    { "source": "/test", "destination": "/pages/test.html" },
+    { "source": "/test.html", "destination": "/pages/test.html" },
+    { "source": "/verify", "destination": "/pages/verify.html" },
+    { "source": "/verify.html", "destination": "/pages/verify.html" },
+    { "source": "/api/question-bank", "destination": "/api/data/question-bank" },
+    { "source": "/api/assessment-session", "destination": "/api/assessment/session" },
+    { "source": "/api/assessment-submit", "destination": "/api/assessment/submit" },
+    { "source": "/api/assessment-event", "destination": "/api/assessment/event" },
+    { "source": "/api/system-health", "destination": "/api/system/health" }
   ],
   "headers": [
     {
