@@ -68,16 +68,12 @@ for (const htmlFile of publicPages) {
   while ((match = referencePattern.exec(html)) !== null) {
     const target = match[1].trim();
     if (!target || /^https?:\/\//i.test(target) || /^(mailto|tel|javascript):/i.test(target)) continue;
-    // Public page URLs are intentionally served from Vercel rewrites.
+    // These public page URLs are handled by Vercel rewrites.
     if (/^(\/)?(account|account-results|account-insights|admin|admin-dashboard|docs|result|test|verify)(\.html)?$/i.test(target)) continue;
-    // Root-relative assets work from both the public route and moved /pages files.
-    if (target.startsWith('/')) {
-      assert(exists(target.slice(1)), `${htmlFile}: local root reference tidak ditemukan -> ${target}`);
-      continue;
-    }
-    // A relative path inside pages/ is resolved against pages/.
-    const candidate = htmlFile.startsWith('pages/') ? path.posix.join(path.posix.dirname(htmlFile), target) : target;
-    assert(exists(candidate), `${htmlFile}: local reference tidak ditemukan -> ${target}`);
+    // HTML files under /pages are served through root public routes, so their
+    // existing relative asset names intentionally resolve from the site root.
+    const normalized = target.startsWith('/') ? target.slice(1) : target;
+    assert(exists(normalized), `${htmlFile}: local reference tidak ditemukan -> ${target}`);
   }
 }
 
