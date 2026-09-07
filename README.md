@@ -8,21 +8,55 @@ TA Assess adalah platform web untuk self-assessment, eksplorasi diri, dan penyaj
 
 ```text
 TA-Assess/
-├── index.html                 # beranda utama
-├── 404.html                   # halaman error Vercel
-├── pages/                     # halaman HTML publik selain entry point root
-├── css/                       # stylesheet
-├── js/                        # logika frontend
+├── index.html                 # entry point utama
+├── 404.html                   # halaman error
+├── pages/                     # halaman HTML publik tambahan
+├── css/                       # stylesheet frontend
+├── js/                        # logika dan engine frontend
 ├── assets/                    # aset statis
-├── api/                       # Vercel Functions, dikelompokkan berdasarkan fungsi
-├── backend/                   # source Google Apps Script dan boundary PHP
-├── docs/                      # dokumentasi teknis terstruktur
-├── tests/                     # pengujian otomatis dan integritas repository
-├── .github/                   # CI, CodeQL, Dependabot, template kontribusi
-├── vercel.json                # rewrite dan security headers
+├── api/                       # Vercel Functions / API source
+│   ├── assessment/            # session, event, submit
+│   ├── data/                  # question bank dan data API
+│   └── system/                # health/system endpoint
+├── backend/                   # integrasi backend eksternal
+│   ├── apps-script/           # Google Apps Script
+│   └── php/                   # PHP maintenance boundary
+├── docs/                      # dokumentasi teknis
+│   ├── assessment/
+│   ├── development/           # termasuk ARCHITECTURE.md
+│   ├── deployment/
+│   ├── security/
+│   └── testing/
+├── tests/                     # pengujian dan repository checks
+├── .github/                   # CI, CodeQL, Dependabot, templates
+├── vercel.json                # routing/rewrite + security headers
 ├── package.json               # script Node.js
-└── .env.example               # nama environment variable tanpa secret
+└── .env.example               # template environment variable tanpa secret
 ```
+
+## Cara bagian-bagian saling terhubung
+
+```text
+pages/*.html + index.html
+        │
+        ├── css/*
+        ├── js/*
+        └── assets/*
+                │
+                ▼
+          vercel.json
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+     pages/*           api/*
+                         │
+                         ▼
+                 backend/apps-script/*
+```
+
+URL publik halaman dan endpoint lama dipertahankan melalui rewrite di `vercel.json`. Karena itu, file sebaiknya tidak dipindahkan sembarangan tanpa memperbarui `href`, `src`, `fetch()`, dan rewrite terkait.
+
+Peta arsitektur yang lebih lengkap tersedia di [`docs/development/ARCHITECTURE.md`](docs/development/ARCHITECTURE.md).
 
 ## Runtime
 
@@ -33,9 +67,7 @@ TA-Assess/
 
 ## Backend
 
-Source Apps Script berada di `backend/apps-script/`. Editor Question Bank menggunakan `backend/apps-script/index.html` dan backend memanggil file tersebut dengan nama `index`.
-
-Vercel API dikelompokkan di `api/assessment`, `api/data`, dan `api/system`. Endpoint publik lama dipertahankan melalui rewrite sehingga perubahan struktur source tidak memutus URL aplikasi.
+Source Apps Script berada di `backend/apps-script/`. Vercel API dikelompokkan di `api/assessment`, `api/data`, dan `api/system`.
 
 ## Dokumentasi
 
