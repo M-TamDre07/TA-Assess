@@ -2,7 +2,7 @@ name: TA Assess CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'maintenance/**']
   pull_request:
     branches: [main]
 
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   validate:
-    name: Validate structure, links, and logic
+    name: Validate structure, links, config, and logic
     runs-on: ubuntu-latest
 
     steps:
@@ -28,6 +28,9 @@ jobs:
 
       - name: Check repository integrity
         run: node tests/check-repository.js
+
+      - name: Check Vercel configuration
+        run: node tests/check-vercel-config.js
 
       - name: Syntax check frontend JavaScript
         run: |
