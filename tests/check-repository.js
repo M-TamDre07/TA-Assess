@@ -68,9 +68,16 @@ for (const htmlFile of publicPages) {
   while ((match = referencePattern.exec(html)) !== null) {
     const target = match[1].trim();
     if (!target || /^https?:\/\//i.test(target) || /^(mailto|tel|javascript):/i.test(target)) continue;
-    // Page URLs are intentionally root-relative from the browser's public URL.
-    if (/^(account|account-results|account-insights|admin|admin-dashboard|docs|result|test|verify)(\.html)?$/i.test(target)) continue;
-    assert(exists(target), `${htmlFile}: local reference tidak ditemukan -> ${target}`);
+    // Public page URLs are intentionally served from Vercel rewrites.
+    if (/^(\/)?(account|account-results|account-insights|admin|admin-dashboard|docs|result|test|verify)(\.html)?$/i.test(target)) continue;
+    // Root-relative assets work from both the public route and moved /pages files.
+    if (target.startsWith('/')) {
+      assert(exists(target.slice(1)), `${htmlFile}: local root reference tidak ditemukan -> ${target}`);
+      continue;
+    }
+    // A relative path inside pages/ is resolved against pages/.
+    const candidate = htmlFile.startsWith('pages/') ? path.posix.join(path.posix.dirname(htmlFile), target) : target;
+    assert(exists(candidate), `${htmlFile}: local reference tidak ditemukan -> ${target}`);
   }
 }
 
@@ -107,7 +114,7 @@ const apiChecks = [
   ['api/assessment/submit.js', ['currentUaHash', 'MAX_SUBMITS_PER_WINDOW', latestBackend]],
   ['api/assessment/event.js', [latestBackend]],
   ['api/system/health.js', [latestBackend, 'TA_ASSESS_SERVER_SECRET', 'questionBank']],
-  ['api/data/question-bank.js', ['question-bank']]
+  ['api/data/question-bank.js', ['QUESTION_BANK_URL', 'questionVersion', 'questions']]
 ];
 for (const [file, patterns] of apiChecks) {
   const source = read(file);
@@ -117,6 +124,9 @@ for (const [file, patterns] of apiChecks) {
 const vercel = read('vercel.json');
 for (const route of ['/admin', '/account.html', '/docs.html', '/result.html', '/test.html', '/verify.html', '/api/question-bank', '/api/assessment-session', '/api/assessment-submit', '/api/assessment-event', '/api/system-health']) {
   assert(vercel.includes(`"source": "${route}"`), `Rewrite lama belum dipertahankan: ${route}`);
+}
+for (const route of ['/pages/admin.html', '/pages/account.html', '/pages/docs.html', '/pages/result.html', '/pages/test.html', '/pages/verify.html', '/api/data/question-bank', '/api/assessment/session', '/api/assessment/submit', '/api/assessment/event', '/api/system/health']) {
+  assert(vercel.includes(`"destination": "${route}"`), `Rewrite baru belum diarahkan: ${route}`);
 }
 assert(vercel.includes('camera=(self)'), 'Permissions-Policy tidak mengizinkan kamera untuk asesmen');
 
