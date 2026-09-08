@@ -7,14 +7,14 @@
     if (typeof CONFIG === 'undefined') return;
 
     // Backend hasil terbaru
-    CONFIG.GOOGLE_SHEETS_API = 'https://script.google.com/macros/s/AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx/exec';
+    CONFIG.GOOGLE_SHEETS_API = 'https://script.google.com/macros/s/AKfycby1TDM-f4yOt6NpuKzwDUQcpn_cKWUbJpCz1whKCCEkpke_bLoVs1EeU7EgqRQFwWOU/exec';
     CONFIG.ACCOUNT_API = '';
     CONFIG.QUESTION_BANK_API = '/api/question-bank';
-    CONFIG.ASSESSMENT_SECURITY_API = '/api/assessment-session';
-    CONFIG.ASSESSMENT_SUBMIT_API = '/api/assessment-submit';
-    CONFIG.ASSESSMENT_EVENT_API = '/api/assessment-event';
-    CONFIG.SYSTEM_HEALTH_API = '/api/system-health';
-    CONFIG.ADMIN_URL = '/admin.html';
+    CONFIG.ASSESSMENT_SECURITY_API = '/api/assessment/session';
+    CONFIG.ASSESSMENT_SUBMIT_API = '/api/assessment/submit';
+    CONFIG.ASSESSMENT_EVENT_API = '/api/assessment/event';
+    CONFIG.SYSTEM_HEALTH_API = '/api/system/health';
+    CONFIG.ADMIN_URL = '/admin';
     CONFIG.FORMSPREE_LINK = 'https://formspree.io/f/xaeydera';
     CONFIG.SAWERIA_LINK = 'https://saweria.co/tamaandrea';
     CONFIG.MRD_COMMUNITY_LINK = 'https://chat.whatsapp.com/BtwsdCb1RTeA2NQufeQhtj';
