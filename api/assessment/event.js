@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 
-const UPSTREAM = 'https://script.google.com/macros/s/AKfycbybvP-FJvO1ruHoGjikM60Y99ofiu9YrWkIXgl410ua1sxt96sgt8tCXCRYzLy8bwEx/exec';
+const UPSTREAM = 'https://script.google.com/macros/s/AKfycby1TDM-f4yOt6NpuKzwDUQcpn_cKWUbJpCz1whKCCEkpke_bLoVs1EeU7EgqRQFwWOU/exec';
+const UPSTREAM_TIMEOUT_MS = 8000;
 const ALLOWED = new Set([
   'assessment_session_issued', 'assessment_calibration_passed', 'assessment_calibration_failed',
   'camera_face_check_passed', 'camera_face_check_failed', 'camera_face_check_off_center',
@@ -23,7 +24,9 @@ function verifySession(token, secret) {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
     if (!data.sessionId || !data.assessmentId || Number(data.expiresAt) < Math.floor(Date.now() / 1000)) return null;
     return data;
-  } catch (_) { return null; }
+  } catch (_) {
+    return null;
+  }
 }
 
 function sanitize(value, max = 300) {
@@ -35,21 +38,23 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-TA-Assessment-Session');
   if (req.method === 'OPTIONS') return res.status(204).end();
-  if (req.method !== 'POST') return reply(res, 405, { success:false, error:'Method tidak didukung.' });
+  if (req.method !== 'POST') return reply(res, 405, { success: false, error: 'Method tidak didukung.' });
 
   const secret = process.env.TA_ASSESS_SERVER_SECRET || '';
-  if (secret.length < 32) return reply(res, 503, { success:false, error:'Server security secret belum dikonfigurasi.' });
+  if (secret.length < 32) return reply(res, 503, { success: false, error: 'Server security secret belum dikonfigurasi.' });
 
   const session = verifySession(req.headers['x-ta-assessment-session'], secret);
-  if (!session) return reply(res, 403, { success:false, error:'Sesi asesmen tidak valid atau sudah berakhir.' });
+  if (!session) return reply(res, 403, { success: false, error: 'Sesi asesmen tidak valid atau sudah berakhir.' });
 
   const body = typeof req.body === 'string' ? (() => { try { return JSON.parse(req.body); } catch (_) { return null; } })() : req.body;
-  const eventName = sanitize(body?.eventName, 80);
-  if (!body || !ALLOWED.has(eventName)) return reply(res, 400, { success:false, error:'Event tidak didukung.' });
-  if (String(body.assessmentId || '') !== String(session.assessmentId)) return reply(res, 403, { success:false, error:'Asesmen tidak cocok dengan sesi.' });
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return reply(res, 400, { success: false, error: 'Payload event tidak valid.' });
+
+  const eventName = sanitize(body.eventName, 80);
+  if (!ALLOWED.has(eventName)) return reply(res, 400, { success: false, error: 'Event tidak didukung.' });
+  if (String(body.assessmentId || '') !== String(session.assessmentId)) return reply(res, 403, { success: false, error: 'Asesmen tidak cocok dengan sesi.' });
 
   const metadata = {};
-  const input = body.metadata && typeof body.metadata === 'object' ? body.metadata : {};
+  const input = body.metadata && typeof body.metadata === 'object' && !Array.isArray(body.metadata) ? body.metadata : {};
   Object.keys(input).slice(0, 12).forEach(key => {
     const k = sanitize(key, 60);
     const value = input[key];
@@ -59,28 +64,39 @@ module.exports = async function handler(req, res) {
     else if (typeof value === 'boolean') metadata[k] = value;
   });
   metadata.securitySessionId = session.sessionId;
-  metadata.securityVersion = '1.1';
+  metadata.securityVersion = '1.3';
 
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
     const upstream = await fetch(UPSTREAM, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        action:'logEvent',
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8', Accept: 'application/json' },
+      body: JSON.stringify({
+        action: 'logEvent',
         eventName,
-        assessmentId:session.assessmentId,
-        reportId:sanitize(body.reportId,120),
-        source:'security-gateway',
+        assessmentId: session.assessmentId,
+        reportId: sanitize(body.reportId, 120),
+        source: 'security-gateway',
         metadata
       }),
-      redirect:'follow'
+      redirect: 'follow',
+      signal: controller.signal
     });
+    clearTimeout(timer);
     const text = await upstream.text();
     let data;
-    try { data = JSON.parse(text); } catch (_) { return reply(res, 502, { success:false, error:'Backend event mengembalikan respons tidak valid.' }); }
+    try {
+      data = JSON.parse(text);
+    } catch (_) {
+      return reply(res, 502, { success: false, error: 'Backend event mengembalikan respons tidak valid.' });
+    }
     return reply(res, upstream.ok ? 200 : 502, data);
   } catch (error) {
     console.error('[TA ASSESS] event gateway error:', error);
-    return reply(res, 502, { success:false, error:'Gagal mengirim event keamanan.' });
+    return reply(res, error && error.name === 'AbortError' ? 504 : 502, {
+      success: false,
+      error: error && error.name === 'AbortError' ? 'Backend event terlalu lama merespons.' : 'Gagal mengirim event keamanan.'
+    });
   }
 };
